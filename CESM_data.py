@@ -83,10 +83,10 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
             southern_hemi_lats = position_array[position_array < 0]
             array_in_loop = array[i, :]
             array_in_loop_southern_hemi = array_in_loop[position_array < 0]
+            
             if ice == "On":
-                #breakpoint()
-                if ice_frac == 'non-zero':
-                    #southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == np.min(array_in_loop_southern_hemi[np.nonzero(array_in_loop_southern_hemi)])]
+               
+                if ice_frac == 'non-zero':                    
                     southern_hemi_positions = southern_hemi_lats[np.nonzero(array_in_loop_southern_hemi)[0][-1]]
                     southern_hemi_positions = np.array([southern_hemi_positions])
                 elif ice_frac == '0.5':
@@ -95,11 +95,11 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
                     southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == find_nearest_value(array_in_loop_southern_hemi,0.75)]
                 elif ice_frac == 'full':
                     southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == find_nearest_value(array_in_loop_southern_hemi,1)]
-                    #breakpoint()
+                    
                 elif ice_frac == 'contintental boundry':
                     southern_hemi_positions = southern_hemi_lats[np.nonzero(array_in_loop_southern_hemi)[0][0]]
                     southern_hemi_positions = np.array([southern_hemi_positions])
-                    #breakpoint()
+                    
         else:
             southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == np.max(array_in_loop_southern_hemi)]
         if len(southern_hemi_positions) > 0:
@@ -107,8 +107,6 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
             positions.append(ice_ext)
         elif len(southern_hemi_positions) <= 0:
             positions.append(-90.0)
-
-
 
 
     max_ice = np.max(positions)
@@ -368,51 +366,8 @@ def T_grad_ice_line_analysis(array,position_array,icelines):
 
     value_groups = over_ice_lats_and_vals,over_water_lats_and_vals,around_ice_lats_and_vals
 
-# i want it to loop through the lat range and in each lat range value i want it to loop through the groups and in each group i want it to loop through the items and append the value of where that lat is equal to the interated lat
-    
-    big_ass_list = []
-    for i in lat_range:
-        i_list = []
-        i_list.append(i)
-        for f in range(0,len(value_groups)):
-            group = value_groups[f]
-            g_list = []
-            for g in group:
-                if g[0] == i:
-                    g_list.append(g[1])
-            i_list.append(g_list)
-        big_ass_list.append(i_list)
-    
-    group_1_all_lats = []
-    for i in range(0,len(big_ass_list)):
-        group_at_lat = big_ass_list[i][1]   
-        group_1_all_lats.append(group_at_lat)
 
-    group_2_all_lats = []
-    for i in range(0,len(big_ass_list)):
-        group_at_lat = big_ass_list[i][2]
-        group_2_all_lats.append(group_at_lat)
-    
-    group_3_all_lats = []
-    for i in range(0,len(big_ass_list)):
-        group_at_lat = big_ass_list[i][3]
-        group_3_all_lats.append(group_at_lat)
-
-    g_1 = []
-    for i in range(0,len(group_1_all_lats)):
-        mean_in_loop = np.mean(group_1_all_lats[i])
-        g_1.append(mean_in_loop)
-    g_2 = []
-    for i in range(0,len(group_2_all_lats)):
-        mean_in_loop = np.mean(group_2_all_lats[i])
-        g_2.append(mean_in_loop)
-    g_3 = []
-    for i in range(0,len(group_3_all_lats)):
-        mean_in_loop = np.mean(group_3_all_lats[i])
-        g_3.append(mean_in_loop)
-
-
-    return over_ice_vals, over_water_vals, around_ice_vals, lat_of_over_ice_vals, lat_of_water_ice_vals, lat_of_around_ice_vals, lat_range, group_1_all_lats, group_2_all_lats, group_3_all_lats
+    return over_ice_vals, over_water_vals, around_ice_vals, lat_of_over_ice_vals, lat_of_water_ice_vals, lat_of_around_ice_vals, lat_range
 
 def lognorm_pdf(x,mu,sigma):
 
@@ -549,8 +504,7 @@ Temp_lon = Temp
 Temp = np.mean(Temp, axis=2)  # Averaging longitude
 #Temp = Temp-273 #Converting to Celcius
 
-# Temp = data['T'].values[:, 0, :, :] 
-# Temp = np.mean(Temp, axis=2)
+#breakpoint()
 
 wind_stress = data['TAUX'].values
 wind_stress_lon = wind_stress
