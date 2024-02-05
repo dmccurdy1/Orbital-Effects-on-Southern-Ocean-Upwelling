@@ -166,9 +166,9 @@ class experiment():
     Orbitals_1 = {'obl':Helper_Functions().orbit_extrema('obl','min'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
     Orbitals_2 = {'obl':Helper_Functions().orbit_extrema('obl','max'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
     
-    kyear = 'forced'
+    kyear = 'noforced'
     
-    chart = 16
+    chart = 5
     
     kyear1 = 1#Helper_Functions().find_kyear_extrema('obl', 'min')
     CO2_ppm_1 = 280
@@ -200,7 +200,7 @@ class experiment():
 
         #Figure Generation
         if On_Off['seas'] == 1:
-          Figures.figure(self, self.config, chart, output_1, output_2, subchart = 'forcing', kyear_1 = kyear1, kyear_2 = kyear2)
+          Figures.figure(self, self.config, chart, output_1, output_2, subchart = 'seas', kyear_1 = kyear1, kyear_2 = kyear2)
         elif On_Off['seas'] == 0 or On_Off['seas'] == 2:
           Figures.figure(self, self.config, chart, output_1, output_2, output_1, output_2, 'annual', kyear1, kyear2)
         plt.tight_layout()
@@ -217,7 +217,7 @@ class experiment():
 
   def table_1_run(self, CO2_ppm = None, D = 0.3, s_type = None, hide_run = None):
 
-    On_Off = {'moist':1, 'albT':1, 'seas':2,'thermo':0}
+    On_Off = {'moist':1, 'albT':1, 'seas':1,'thermo':0}
 
     kyear = 1
 
@@ -242,6 +242,10 @@ class experiment():
 
   def generate_table_1(self):
 
+    print('------------------')
+    print('')
+    print('generating table 1')
+
     row_1 = self.table_1_run(CO2_ppm = 560, D = 0.3, s_type = 0)
     row_2 = self.table_1_run(CO2_ppm = None, D = 0.3, s_type = 0)
     row_3 = self.table_1_run(CO2_ppm = 140, D = 0.3, s_type = 0)
@@ -259,7 +263,7 @@ class experiment():
     row_11 = self.table_1_run(CO2_ppm = None, D = 0.3, s_type = 1)
     row_12 = self.table_1_run(CO2_ppm = None, D = 0.2, s_type = 1)
 
-    row_control = self.table_1_run(CO2_ppm = 413, D = 0.3, s_type = 1)
+    row_control = self.table_1_run(CO2_ppm = 475, D = 0.3, s_type = 1)
 
     row_1 = [i for sublist in row_1 for i in sublist]
     row_2 = [i for sublist in row_2 for i in sublist]
@@ -274,8 +278,6 @@ class experiment():
     row_11 = [i for sublist in row_11 for i in sublist]
     row_12 = [i for sublist in row_12 for i in sublist]
     row_control = [i for sublist in row_control for i in sublist]
-
-    #breakpoint()
 
     df = pd.DataFrame([row_1, row_2, row_3, row_4, row_5, row_6, row_7, row_8, row_9, row_10, row_11, row_12, row_control])
     df.columns = ["Atm CO2 ppm", "D", "Ins Type", "GMT", "Eq-Pole Temp Diff", "Annual Mean Ins", 'Heat Transport Max', 'Heat Tranport Max Location', "T grad Max", 'T grad Max Location', 'Wind Max', 'Wind Max Location', 'Max Ice', 'Min Ice', 'Mean Ice', 'GMAlb', 'GM_OLR']
@@ -998,8 +1000,6 @@ class Orbital_Insolation():
       obliquity = obl
       long_peri = long
       ecc0 = ecc
-
-   #breakpoint()
     
     if days_per_year is None:
         days_per_year = self.days_per_year_const
@@ -1022,8 +1022,6 @@ class Orbital_Insolation():
     
     oldsettings = np.seterr(invalid='ignore')
 
-    #breakpoint()
-
     if type(kyear) != type('string'):
 
       kyear0,ecc0,long_peri,obliquity,precession = self.get_orbit('on')
@@ -1033,9 +1031,6 @@ class Orbital_Insolation():
       obliquity = obl
       long_peri = long
       ecc0 = ecc
-
-    #breakpoint()
-
 
     if obl_run != None:
       obliquity = obl_run
@@ -1698,9 +1693,9 @@ class Helper_Functions():
       geo_wind_loc = self.find_extrema(grid, geo_wind, lat, 'max')
 
     if Tfin.ndim == 2:
-      max_ice, min_ice, mean_ice = ice_lines
+      max_ice, min_ice, mean_ice, positions = ice_lines
     else:
-      max_ice, min_ice, mean_ice = ice_lines
+      max_ice, min_ice, mean_ice, positions = ice_lines
 
     return GMT, eq_pole_diff, global_mean_ins, E_transport_mag, E_transport_loc, T_grad_mag, T_grad_loc, geo_wind_mag, geo_wind_loc, max_ice, min_ice, mean_ice, GMA, GM_OLR
 
@@ -1791,11 +1786,12 @@ class Helper_Functions():
 
   def CO2_to_A(self,CO2_ppm):
 
-      #A = 193.7571401821021
+      S_efolding = 5.35 # Myhre, 1998
+      
       #A = 196
       A = 192.9499973
 
-      A = A - np.log2((CO2_ppm/280)) * 4
+      A = A - np.log((CO2_ppm/280)) * S_efolding
 
       return A
 
@@ -2550,7 +2546,6 @@ class Figures():
         test = axs[0].contour(dur_plt,lat,Tfin_def_seas,levels = [0], colors = 'red', label = 'Sea Ice Extent')
         test = axs[1].contour(dur_plt,lat,Tfin_orb_seas,levels = [0], colors = 'red', label = 'Sea Ice Extent')
 
-
         plt.colorbar(contour_1,ax = axs[0])
         plt.colorbar(contour_2,ax = axs[1])
         plt.colorbar(contour_3,ax = axs[2])
@@ -2562,7 +2557,9 @@ class Figures():
         axs[1].set_ylabel('lat')
         axs[2].set_ylabel('lat')
 
-        fig.savefig('ContourCompare_Temp.jpg')
+        if True == True:
+          print('savefig')
+          plt.savefig('ContourCompare_Temp.jpg')
 
       elif subchart == 'annual':
 
@@ -3653,13 +3650,13 @@ class Figures():
       fig.tight_layout()
 
 if __name__ == '__main__':
-  #experiment().main()
+  experiment().main()
   #experiment().generate_table_1()
   #experiment().generate_sensitivity_table(run_type = 'forcing', orb_comp='obl', def_v_orb="Off")
   #experiment().generate_decomp_table()
   #experiment().orbit_and_CO2_suite(x_type = 'CO2')
   #Figures().figure(experiment().config, chart = 18)
-  Figures().figure(experiment().config, chart = 18, subchart='forcing')
+  #Figures().figure(experiment().config, chart = 18, subchart='forcing')
  
   print("-------------------------------------------------")
   print("--- %s seconds ---" % (time.time() - start_time))

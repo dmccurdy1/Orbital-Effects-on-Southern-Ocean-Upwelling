@@ -51,13 +51,12 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
     if avg == 'On':
         for i in range(0, 12):
             southern_hemi_lats = position_array[position_array < 0]
-            #breakpoint()
+    
             array_in_loop = array[i, :]
             array_in_loop_southern_hemi = array_in_loop[position_array < 0]
             if ice == "On":
-                #breakpoint()
+              
                 if ice_frac == 'non-zero':
-                    #southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == np.min(array_in_loop_southern_hemi[np.nonzero(array_in_loop_southern_hemi)])]
                     southern_hemi_positions = southern_hemi_lats[np.nonzero(array_in_loop_southern_hemi)[0][-1]]
                     southern_hemi_positions = np.array([southern_hemi_positions])
                 elif ice_frac == '0.5':
@@ -66,11 +65,9 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
                     southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == find_nearest_value(array_in_loop_southern_hemi,0.75)]
                 elif ice_frac == 'full':
                     southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == find_nearest_value(array_in_loop_southern_hemi,1)]
-                    #breakpoint()
                 elif ice_frac == 'contintental boundry':
                     southern_hemi_positions = southern_hemi_lats[np.nonzero(array_in_loop_southern_hemi)[0][0]]
                     southern_hemi_positions = np.array([southern_hemi_positions])
-                    #breakpoint()
             else:
                 southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == np.max(array_in_loop_southern_hemi)]
             if len(southern_hemi_positions) > 0:
@@ -624,13 +621,13 @@ total_interp_values = m_interp, b_interp
 
 Z_wind_reg = calc_z_wind(sea_ice, all_m, all_b)
 
-#MEBM_Tgrad = np.load('T_grad_save_for_reg.npy')
+MEBM_Tgrad = np.load('T_grad_save_for_reg.npy')
 
 func_m = interp1d(lat,all_m, kind = 'linear')
 func_b = interp1d(lat,all_b, kind = 'linear')
 
-#Z_wind_MEBM_reg_scipy = calc_z_wind(MEBM_Tgrad, func_m(model_lat), func_b(model_lat))
-#Z_wind_MEBM_reg_numpy = calc_z_wind(MEBM_Tgrad, m_interp, b_interp)
+Z_wind_MEBM_reg_scipy = calc_z_wind(MEBM_Tgrad, func_m(model_lat), func_b(model_lat))
+Z_wind_MEBM_reg_numpy = calc_z_wind(MEBM_Tgrad, m_interp, b_interp)
 
 
 # Longitudinal Regression
@@ -773,8 +770,6 @@ Indian_ice_line_half_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper], la
 Indian_ice_line_three_q_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper], lat[5:SO_upper], ice = 'On', ice_frac = '0.75', avg = 'On')[3]
 Indian_full_ice_line_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper], lat[5:SO_upper], ice = 'On', ice_frac = 'full', avg = 'On')[3]
 Indian_boundry_ice_line_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper], lat[5:SO_upper], ice = "On", ice_frac = "contintental boundry", avg = 'On')[3]
-
-
 
 
 # Creating figures
