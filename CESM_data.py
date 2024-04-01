@@ -109,6 +109,7 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
     max_ice = np.max(positions)
     min_ice = np.min(positions)
     mean_ice = np.mean(positions)
+
     return max_ice, min_ice, mean_ice, positions
 
 def correlation(var_1, var_2, lat=None):
@@ -322,7 +323,7 @@ def T_grad_ice_line_analysis(array,position_array,icelines):
         over_ice_array_in_loop = list(over_ice_array_in_loop)
 
         over_surface_array_in_loop = array_in_loop_southern_hemi[southern_hemi_lats > icelines[i]]
-        over_surface_array_in_loop = array_in_loop_southern_hemi[southern_hemi_lats < icelines[i]+20]
+        over_surface_array_in_loop = array_in_loop_southern_hemi[southern_hemi_lats < icelines[i]+21]
         lat_of_over_surface_array_in_loop = southern_hemi_lats[southern_hemi_lats > icelines[i]]
         lat_of_over_surface_array_in_loop = list(lat_of_over_surface_array_in_loop)
         over_surface_array_in_loop = list(over_surface_array_in_loop)
@@ -385,6 +386,8 @@ def pdf_analysis(array,position_array,icelines):
     sd = np.max(sd)
 
     x_range = np.linspace(mu - 4*sd,mu + 4*sd,1000)
+
+    #breakpoint()
     
     pdf1 = norm.pdf(x_range, mu1, sd1)
     pdf2 = norm.pdf(x_range, mu2, sd2)
@@ -467,6 +470,8 @@ grid = experiment().config
 n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
 nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
 
+#breakpoint()
+
 # Extracting processing and defining specific variables
 time_dim = int(list(np.shape(data.time))[0]) # Time Step = 1 month ... time = 0 is January
 time_ax = np.linspace(0, time_dim, time_dim)
@@ -523,7 +528,8 @@ WSC = take_gradient(wind_stress)
 
 test = monthly_average(T_grad,'annual')
 
-#breakpoint()
+np.savetxt('surface_temperature_gradients.csv', T_grad)
+np.savetxt('surface_zonal_wind_velocity.csv', Z_wind)
 #T_grad = M_grad
 
 CAM_Tgrad = np.mean(T_grad, axis = 0)
@@ -960,13 +966,13 @@ def generate_figures(which_figure):
 
         pdf1, pdf2, pdf3, x_range, array_vals = pdf_analysis(T_grad, lat, max_ice[3])
     
-        axs.plot(x_range,pdf1, color = 'blue', label = 'over ice')
-        axs.plot(x_range,pdf2, color = 'red', label = 'over water')
+        # axs.plot(x_range,pdf1, color = 'blue', label = 'over ice')
+        # axs.plot(x_range,pdf2, color = 'red', label = 'over water')
         axs.plot(x_range,pdf3, color = 'green',label = 'at margins')
         axs.set_xlabel('Surface Temperature Gradient')
         axs.set_ylabel('Probability Density')
         axs.set_title('PDF of Surface Temperature Gradients over Ice, Water, and at the Margins')
-
+        breakpoint()
         axs.legend()
         axs.hist(array_vals[1],color = 'red', label = 'sub arctic tgrad', density = True, alpha = 0.1, histtype='stepfilled')
         axs.hist(array_vals[0],color = 'blue', label = 'over ice tgrad', density = True, alpha = 0.1, histtype='stepfilled')
@@ -993,7 +999,7 @@ def generate_figures(which_figure):
         # axs[2].scatter(T_grad_val[5], T_grad_val[2], color = 'green', label = 'around icelines tgrad')
         #axs[1].legend()
 
-        fig.savefig('CESM_boxplots.jpg')
+        fig.savefig('CESM_pdfanalysis.jpg')
     
     elif which_figure == 10: # MEBM, numpy, scipy and data comparison (linear zonally averaged regression analysis)
 
@@ -1222,7 +1228,7 @@ def generate_figures(which_figure):
 
     elif which_figure == 15: #Atl, Pac, Ind wind stress, tgrad and sea ice contour map
 
-        fig, axs = plt.subplots(ncols = 4, figsize = (10,10))
+        fig, axs = plt.subplots(ncols = 4, figsize = (10,7))
 
         to_time = 12
 
@@ -1271,17 +1277,19 @@ def generate_figures(which_figure):
 
         axs[3].remove()
 
+        plt.suptitle('Wind Stress Curl, Sea Ice and Meridional Temperature Gradients in CAM')
+
         #fig.legend()
 
         plt.colorbar(contour_1, cax = fig.add_axes([0.73, 0.1, 0.05, 0.8]))
         
         
 
-        fig.savefig('CESM_plot_contour.pdf')
+        fig.savefig('CESM_plot_contour.png')
 
     return None
 
 # Execute Sript
 if __name__ == '__main__':
-    generate_figures(15)
+    generate_figures(6)
 #breakpoint()

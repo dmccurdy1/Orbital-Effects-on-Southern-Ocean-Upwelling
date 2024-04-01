@@ -40,7 +40,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib as mpl
 from climlab.solar.orbital.long import OrbitalTable as OrbitalTable #The Laskar 2004 orbital data table 2Mya-present
 from tabulate import tabulate
-
+import pickle
 
 start_time = time.time()
 
@@ -52,7 +52,7 @@ mpl.rcParams['ytick.labelsize'] = 8 # reset global fig properties
 mpl.rcParams['ytick.right'] = True # reset global fig properties
 mpl.rcParams['axes.labelsize'] = 8 # reset global fig properties
 
-class experiment():
+class experiment(): # experimental set ups for analysis on EBM
 
   def __init__(self, grid_num = 1):
 
@@ -83,7 +83,7 @@ class experiment():
       dt = 1./nt
       eb = 0.1
 
-    elif grid == 1: #intermediate run // low resolution
+    elif grid == 1: #intermediate run // intermediate resolution
       n = 120
       dx = 2/n #grid box width
       x = np.linspace(-1+dx/2,1-dx/2,n) #native grid
@@ -127,56 +127,26 @@ class experiment():
 
     return qs
 
-  def analytics(self, type): #returns numerical information such as shape, average, and more
-
-    tfin, Efin, Tfin, T0fin, ASRfin, S, Tg = self.main()
-
-    if type == "shape":
-      print('tfin is',np.shape(tfin))
-      print('Efin is',np.shape(Efin))
-      print('Tfin is',np.shape(Tfin))
-      print('T0fin is',np.shape(T0fin))
-      print('ASRfin is',np.shape(ASRfin))
-      print('S is',np.shape(S))
-      print('Tg is',np.shape(Tg))
-
-    elif type == "avg":
-      print('tfin is',np.mean(tfin))
-      print('Efin is',np.mean(Efin))
-      print('Tfin is',np.mean(Tfin))
-      print('T0fin is',np.mean(T0fin))
-      print('ASRfin is',np.mean(ASRfin))
-      print('S is',np.mean(S))
-      print('Tg is',np.mean(Tg))
-    
-    else:  
-      print('tfin is',tfin)
-      print('Efin is',Efin)
-      print('Tfin is',Tfin)
-      print('T0fin is',T0fin)
-      print('ASRfin is',ASRfin)
-      print('S is',S)
-      print('Tg is',Tg)
-  
-  def main(self): #executes script, generates output, and figures
+  def main(self): # compaires two runs
 
 #--------------------Control-Panel---------------------------#
+    # Toggle EBM parameters
     On_Off = {'moist':1, 'albT':1, 'seas':1,'thermo':0}
-    
+
+    # Manually set orbital values
     Orbitals_1 = {'obl':Helper_Functions().orbit_extrema('obl','min'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
     Orbitals_2 = {'obl':Helper_Functions().orbit_extrema('obl','max'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
     
-    kyear = 'noforced'
+    kyear = 'forced' # If forced willuse manually set values
     
-    chart = 5
+    chart = 21 # generates figure # from Figures()
     
-    kyear1 = 1#Helper_Functions().find_kyear_extrema('obl', 'min')
+    # Radiative forcings
+    kyear1 = 1 
     CO2_ppm_1 = 280
-    kyear2 = 2#Helper_Functions().find_kyear_extrema('obl', 'max')
+    kyear2 = 1 
     CO2_ppm_2 = 280
 #------------------------------------------------------------#
-
-    #Model_Class.model(self, 1, self.config, self.Ti, CO2_ppm = CO2_ppm_1, D = None, F = 0, moist = On_Off['moist'], albT = On_Off['albT'], seas = On_Off['seas'], thermo = On_Off['thermo'], kyear = kyear1, save_Alb= 'On')    
 
     if True == True:
         #Model Runs
@@ -195,9 +165,6 @@ class experiment():
             output_1 = Model_Class.model(self, 1, self.config, self.Ti, CO2_ppm = CO2_ppm_1, D = None, F = 0, moist = On_Off['moist'], albT = On_Off['albT'], seas = On_Off['seas'], thermo = On_Off['thermo'], kyear = kyear1)
             output_2 = Model_Class.model(self, 1, self.config, self.Ti, CO2_ppm = CO2_ppm_2, D = None, F = 0, moist = On_Off['moist'], albT = On_Off['albT'], seas = On_Off['seas'], thermo = On_Off['thermo'], kyear = kyear2)
 
-        np.save('control_1110_low_obl.npy', output_1)
-        np.save('control_1110_high_obl.npy', output_2)
-
         #Figure Generation
         if On_Off['seas'] == 1:
           Figures.figure(self, self.config, chart, output_1, output_2, subchart = 'seas', kyear_1 = kyear1, kyear_2 = kyear2)
@@ -210,12 +177,7 @@ class experiment():
 
     return None
 
-  def two_runs(self): #executes multiple main functions
-    
-    experiment(0).main()
-    experiment(1).main()
-
-  def table_1_run(self, CO2_ppm = None, D = 0.3, s_type = None, hide_run = None):
+  def table_1_run(self, CO2_ppm = None, D = 0.3, s_type = None, hide_run = None): # runs EBM for data table 1
 
     On_Off = {'moist':1, 'albT':1, 'seas':1,'thermo':0}
 
@@ -240,7 +202,7 @@ class experiment():
 
     return inputs, outputs
 
-  def generate_table_1(self):
+  def generate_table_1(self): # generates and tabulates data table 1
 
     print('------------------')
     print('')
@@ -293,9 +255,9 @@ class experiment():
 
     return None
 
-  def table_2_run(self, obl, long, ecc):
+  def table_2_run(self, obl, long, ecc): # runs EBM for data table 2
 
-    On_Off = {'moist':1, 'albT':1, 'seas':2,'thermo':1}
+    On_Off = {'moist':1, 'albT':1, 'seas':1,'thermo':0}
     
     Orbitals = {'obl':obl, 'long':long, 'ecc':ecc}
 
@@ -308,7 +270,7 @@ class experiment():
 
     return inputs, outputs
 
-  def generate_table_2(self):
+  def generate_table_2(self): # generates and tabulates data table 1
 
     control_row = self.table_2_run(obl = Helper_Functions().orbit_at_time('obl', 1), long = Helper_Functions().orbit_at_time('long', 1), ecc = Helper_Functions().orbit_at_time('ecc', 1))
     
@@ -344,9 +306,9 @@ class experiment():
 
     return None
 
-  def sensitivity_runs(self, run_type = None, orb_comp = None, def_v_orb = 'Off'):
+  def sensitivity_runs(self, run_type = None, orb_comp = None): # climate sensitivity analysis on various model runs
     
-    if run_type == "default":
+    if run_type == "default": # sensitivity analysis compairing default insolation runs with different sea ice dynamics to an orbital contorl run with dynamic sea ice
 
       control_run_settings = {'moist':self.control_moist, 'albT':self.control_albT, 'seas':self.control_seas,'thermo':self.control_thermo}
       
@@ -376,25 +338,21 @@ class experiment():
 
       return control_run_output, no_ice_output, constant_ice_output, dynamic_ice_output, full_run_output, all_inputs
 
-    elif run_type == 'forcing':
+    elif run_type == 'forcing': # sensitivity analysis compairing orbital runs with different orbital params, co2 concentrations, and seaice feedback to orbital control run
 
-      CO2_forcing = {'On':560, 'Off':280}
+      CO2_forcing = {'On':280*2, 'Off':280}
       ice_feedback = {"On":[1, 'dynamic'], "Off":[4, 'static']}
       control_orbit = {'control_obl': Helper_Functions().orbit_at_time('obl',1), "control_long":Helper_Functions().orbit_at_time('long',1), 'control_ecc': Helper_Functions().orbit_at_time('ecc',1)}
       
-      if def_v_orb == 'On':
-        Orbit_forcing = {'On':[1, 'orbital'], 'Off':[0, 'default']}
-        kyear = 1
-        orbital_perturbation_settings = {'obl':0,'long':0,'ecc':0}
-      else:
-        Orbit_forcing = {'On':[1, 'orbital'], 'Off':[1, 'orbital']}
-        kyear = 'forced'
-        if orb_comp == 'obl':
-          orbital_perturbation_settings = {'obl':Helper_Functions().orbit_extrema('obl', 'max'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
-        elif orb_comp == 'long':
-          orbital_perturbation_settings = {'obl':Helper_Functions().orbit_at_time('obl',1), 'long':Helper_Functions().orbit_extrema('long','max'), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
-        elif orb_comp == 'ecc':
-          orbital_perturbation_settings = {'obl':Helper_Functions().orbit_at_time('obl',1), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_extrema('ecc','max')}
+    
+      Orbit_forcing = {'On':[1, 'orbital'], 'Off':[1, 'orbital']}
+      kyear = 'forced'
+      if orb_comp == 'obl':
+        orbital_perturbation_settings = {'obl':Helper_Functions().orbit_extrema('obl', 'max'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
+      elif orb_comp == 'long':
+        orbital_perturbation_settings = {'obl':Helper_Functions().orbit_at_time('obl',1), 'long':Helper_Functions().orbit_extrema('long','max'), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
+      elif orb_comp == 'ecc':
+        orbital_perturbation_settings = {'obl':Helper_Functions().orbit_at_time('obl',1), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_extrema('ecc','max')}
 
       run_000 = Model_Class.model(self, self.control_orbit_type, self.config, self.Ti, CO2_ppm = self.control_CO2, D = None, F = 0, moist = self.control_moist, albT = self.control_albT, seas = self.control_seas, thermo = self.control_thermo,
       obl = control_orbit['control_obl'], long = control_orbit['control_long'], ecc = control_orbit['control_ecc'], kyear = kyear)
@@ -420,33 +378,22 @@ class experiment():
       run_111 = Model_Class.model(self, self.control_orbit_type, self.config, self.Ti, CO2_ppm = CO2_forcing["On"], D = None, F = 0, moist = self.control_moist, albT = ice_feedback["Off"][0], seas = self.control_seas, thermo = self.control_thermo,
       obl = orbital_perturbation_settings['obl'], long = orbital_perturbation_settings['long'], ecc = orbital_perturbation_settings['ecc'], kyear = kyear)
       
-      if def_v_orb == 'On':
-        run_000_inputs = [Orbit_forcing['Off'][1], CO2_forcing['Off'], self.control_label]
-        run_010_inputs = [Orbit_forcing['Off'][1], CO2_forcing['On'], self.control_label]
-        run_100_inputs = [Orbit_forcing['On'][1], CO2_forcing['Off'], self.control_label]
-        run_110_inputs = [Orbit_forcing['On'][1], CO2_forcing['On'], self.control_label]
-        run_001_inputs = [Orbit_forcing['Off'][1], CO2_forcing['Off'], ice_feedback['Off'][1]]
-        run_011_inputs = [Orbit_forcing['Off'][1], CO2_forcing['On'], ice_feedback['Off'][1]]
-        run_101_inputs = [Orbit_forcing['On'][1], CO2_forcing['Off'], ice_feedback['Off'][1]]
-        run_111_inputs = [Orbit_forcing['On'][1], CO2_forcing['On'], ice_feedback['Off'][1]]
-
-      elif def_v_orb != 'On':
-
-        run_000_inputs = [self.control_label,self.control_label,self.control_label, self.control_label, self.control_label]
-        run_010_inputs = [self.control_label,self.control_label,self.control_label, CO2_forcing['On'], self.control_label]
-        run_100_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], self.control_label, self.control_label]
-        run_110_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], CO2_forcing['On'], self.control_label]
-        run_001_inputs = [self.control_label,self.control_label,self.control_label, self.control_label, ice_feedback['Off'][1]]
-        run_011_inputs = [self.control_label,self.control_label,self.control_label, CO2_forcing['On'], ice_feedback['Off'][1]]
-        run_101_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], self.control_label, ice_feedback['Off'][1]]
-        run_111_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], CO2_forcing['On'], ice_feedback['Off'][1]]
+      
+      run_000_inputs = [self.control_label,self.control_label,self.control_label, self.control_label, self.control_label]
+      run_010_inputs = [self.control_label,self.control_label,self.control_label, CO2_forcing['On'], self.control_label]
+      run_100_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], self.control_label, self.control_label]
+      run_110_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], CO2_forcing['On'], self.control_label]
+      run_001_inputs = [self.control_label,self.control_label,self.control_label, self.control_label, ice_feedback['Off'][1]]
+      run_011_inputs = [self.control_label,self.control_label,self.control_label, CO2_forcing['On'], ice_feedback['Off'][1]]
+      run_101_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], self.control_label, ice_feedback['Off'][1]]
+      run_111_inputs = [orbital_perturbation_settings['obl'],orbital_perturbation_settings['long'],orbital_perturbation_settings['ecc'], CO2_forcing['On'], ice_feedback['Off'][1]]
 
       all_runs = run_000,run_010,run_100,run_110,run_001,run_011,run_101,run_111
       all_run_inputs = run_000_inputs,run_010_inputs,run_100_inputs,run_110_inputs,run_001_inputs,run_011_inputs,run_101_inputs,run_111_inputs
 
       return all_runs, all_run_inputs
 
-    else:
+    else: # sensitivity analysis compairing min orbital param with different sea ice dynamics to control run with max orbital param
 
       if orb_comp == 'obl':
         orbital_control_settings = {'obl':Helper_Functions().orbit_extrema('obl', 'min'), 'long':Helper_Functions().orbit_at_time('long',1), 'ecc':Helper_Functions().orbit_at_time('ecc',1)}
@@ -493,11 +440,11 @@ class experiment():
 
       return control_run_output, no_ice_output, constant_ice_output, dynamic_ice_output, full_run_output, all_inputs
 
-  def sensitivity_sythesis(self, run_type = None, orb_comp = None, def_v_orb = "Off"):
+  def sensitivity_sythesis(self, run_type = None, orb_comp = None): # preparing sensitivity run output for tabulation
 
       if run_type == 'forcing':
 
-        all_runs, all_run_inputs = self.sensitivity_runs(run_type = run_type, orb_comp = orb_comp, def_v_orb = def_v_orb)
+        all_runs, all_run_inputs = self.sensitivity_runs(run_type = run_type, orb_comp = orb_comp)
         run_000,run_010,run_100,run_110,run_001,run_011,run_101,run_111 = all_runs
 
         run_000_v_run_010 = list(Helper_Functions().sensitivity_analysis(run_000,run_010))
@@ -514,7 +461,7 @@ class experiment():
 
       else:
 
-        control_run_output, no_ice_output, constant_ice_output, dynamic_ice_output, full_run_output, all_inputs = self.sensitivity_runs(run_type = run_type, orb_comp = orb_comp, def_v_orb = def_v_orb)
+        control_run_output, no_ice_output, constant_ice_output, dynamic_ice_output, full_run_output, all_inputs = self.sensitivity_runs(run_type = run_type, orb_comp = orb_comp)
 
         control_v_no_ice = Helper_Functions().sensitivity_analysis(control_run_output, no_ice_output)
         control_v_constant_ice = Helper_Functions().sensitivity_analysis(control_run_output, constant_ice_output)
@@ -528,11 +475,11 @@ class experiment():
 
         return control_v_no_ice, control_v_constant_ice, control_v_dynamic_ice, control_v_full, all_inputs
 
-  def generate_sensitivity_table(self, run_type = None, orb_comp = None, def_v_orb = "Off"):
+  def generate_sensitivity_table(self, run_type = None, orb_comp = None): # generates and tabulates sensitivity table
 
     if run_type == 'forcing':
 
-      all_comparisons, all_run_inputs = self.sensitivity_sythesis(run_type = run_type, orb_comp = orb_comp, def_v_orb = def_v_orb)
+      all_comparisons, all_run_inputs = self.sensitivity_sythesis(run_type = run_type, orb_comp = orb_comp)
       run_000_v_run_010,run_000_v_run_100,run_000_v_run_110,run_000_v_run_001,run_000_v_run_011,run_000_v_run_101,run_000_v_run_111 = all_comparisons
       
       run_000_inputs,run_010_inputs,run_100_inputs,run_110_inputs,run_001_inputs,run_011_inputs,run_101_inputs,run_111_inputs = all_run_inputs
@@ -560,10 +507,8 @@ class experiment():
       row_14 = run_111_inputs + empty
 
       df = pd.DataFrame([row_1, row_2, row_3, row_4, row_5, row_6, row_7, row_8, row_9, row_10, row_11, row_12, row_13, row_14])
-      if def_v_orb == 'On':
-        df.columns = ['Orbital Forcing', 'CO2 Forcing', 'Albedo Feedback','delta_I', 'delta_OLR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change']
-      else:
-        df.columns = ['Obliquity','Long Peri', "Ecc", 'CO2 Forcing', 'Albedo Feedback','delta_I', 'delta_OLR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change']
+      
+      df.columns = ['Obliquity','Long Peri', "Ecc", 'CO2 Forcing', 'Albedo Feedback','delta_I', 'delta_OLR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change', 'lambda ice']
 
       df = Helper_Functions().format_data(df)
       df = df.round(2)
@@ -573,7 +518,7 @@ class experiment():
 
     else:
 
-      control_v_no_ice, control_v_constant_ice, control_v_dynamic_ice, control_v_full, all_inputs = self.sensitivity_sythesis(run_type = run_type, orb_comp = orb_comp, def_v_orb = def_v_orb)
+      control_v_no_ice, control_v_constant_ice, control_v_dynamic_ice, control_v_full, all_inputs = self.sensitivity_sythesis(run_type = run_type, orb_comp = orb_comp)
       control_inputs, no_ice_inputs, constant_ice_inputs, dynamic_ice_inputs, full_run_inputs = all_inputs
       empty = [''] * len(control_v_no_ice)
           
@@ -590,22 +535,21 @@ class experiment():
       row_8 = full_run_inputs + empty
 
       df = pd.DataFrame([row_1, row_2, row_3, row_4, row_5, row_6, row_7, row_8])
-      df.columns = ['Ins Type', 'Obl', 'long', 'ecc', 'CO2 ppm', 'settings','delta_I', 'delta_ASR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change']
+      df.columns = ['Ins Type', 'Obl', 'long', 'ecc', 'CO2 ppm', 'settings','delta_I', 'delta_ASR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change', 'lambda ice']
       df = Helper_Functions().format_data(df)
       df = df.round(2)
       df.to_csv("table_sensitivity.csv")
 
       return None
 
-  def forcing_decomp_runs(self):
+  def forcing_decomp_runs(self): # generates model output for min/max orbital forcings, x2 and 0.5x co2, and control run
 
     CO2_forcing = {'Double':[560, 'Double'], 'Half':[140, 'Half']}
     kyear = 'forced'
     control_orbit = {'control_obl': Helper_Functions().orbit_at_time('obl',1), "control_long":Helper_Functions().orbit_at_time('long',1), 'control_ecc': Helper_Functions().orbit_at_time('ecc',1)}
     obl_settings = {'max_obl': [Helper_Functions().orbit_extrema('obl', 'max'), 'Max'],'min_obl': [Helper_Functions().orbit_extrema('obl', 'min'), 'Min'] }
-    #long_settings = {'max_long': [Helper_Functions().orbit_extrema('long', 'max'),'Max'],'min_long': [Helper_Functions().orbit_extrema('long', 'min'), 'Min'] }
     ecc_settings = {'max_ecc': [Helper_Functions().orbit_extrema('ecc', 'max'), 'Max'],'min_ecc': [Helper_Functions().orbit_extrema('ecc', 'min'), 'Min'] }
-    long_settings = {'max_long': [0,'Max'],'min_long': [180, 'Min'] }
+    long_settings = {'max_long': [0,'Max'],'min_long': [180, 'Min'] } # orbit_extrema does not accuratly capture greatest forcings difference for longitude or perihelion due to its angular configuration
 
 
     control_run = Model_Class.model(self, self.control_orbit_type, self.config, self.Ti, CO2_ppm = self.control_CO2, D = None, F = 0, moist = self.control_moist, albT = self.control_albT, seas = self.control_seas, thermo = self.control_thermo,
@@ -650,7 +594,7 @@ class experiment():
     
     return all_runs, all_run_inputs
 
-  def forcing_decomp_sensitivity_synthesis(self):
+  def forcing_decomp_sensitivity_synthesis(self):  # preforms sensitivity analysis on forcing runs vs. control run
 
     all_runs, all_run_inputs = self.forcing_decomp_runs()
     control_run,oblmax_run,oblmin_run,longmax_run,longmin_run,eccmax_run,eccmin_run,co2double_run,co2half_run = all_runs
@@ -668,7 +612,7 @@ class experiment():
 
     return all_comparisons, all_run_inputs
 
-  def generate_decomp_table(self):
+  def generate_decomp_table(self): # generates and tabulates sensitivity analysis of forcing decomposition table
 
     all_comparisons, all_run_inputs = self.forcing_decomp_sensitivity_synthesis()
     control_v_oblmax,control_v_oblmin,control_v_longmax,control_v_longmin,control_v_eccmax,control_v_eccmin,control_v_co2double,control_v_co2half = all_comparisons
@@ -685,7 +629,7 @@ class experiment():
 
     df = pd.DataFrame([row_1, row_2, row_3, row_4, row_5, row_6, row_7, row_8])
 
-    df.columns = ['Obliquity','Long Peri', "Ecc", 'CO2 Forcing','delta_I', 'delta_OLR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change']
+    df.columns = ['Obliquity','Long Peri', "Ecc", 'CO2 Forcing','delta_I', 'delta_OLR', 'delta_FCO2', 'delta_GMT', 'calculated_delta_GMT', 'unnacounted_change', 'lambda ice']
     
     df = Helper_Functions().format_data(df)
     df = df.round(2)
@@ -693,7 +637,7 @@ class experiment():
 
     return None
 
-  def orbit_and_CO2_suite(self, x_type = None):
+  def orbit_and_CO2_suite(self, x_type = None): # tracks EBM outputs over range of orbital or co2 forcings
 
     control_orbit = {'control_obl': Helper_Functions().orbit_at_time('obl',1), "control_long":Helper_Functions().orbit_at_time('long',1), 'control_ecc': Helper_Functions().orbit_at_time('ecc',1)}
     kyear = 'forced'
@@ -730,7 +674,6 @@ class experiment():
     Shemi_icelines_of_runs = []
     for i in range(0,iterations):
       icelines_of_single_run = model_output_list[i][14][2]
-      #icelines_of_single_run = np.mean(icelines_of_single_run)
       Shemi_icelines_of_runs.append(icelines_of_single_run)
 
     S65_ins = []
@@ -767,18 +710,17 @@ class experiment():
       lat_of_max_WSC_sing_run = Helper_Functions().find_lat_of_value(experiment().config,WSC_max_single_run,self.lat_deg,np.max(WSC_max_single_run[0:(int(len(WSC_max_single_run)/2))]))
       WSC_max_lat.append(lat_of_max_WSC_sing_run)
 
-    #()
     return x_range, GMT_of_runs, Shemi_icelines_of_runs, S65_ins, S65_temp, dASRdalpha, geo_wind_max_lat, t_grad_max_lat, WSC_max_lat, CO2_val
 
-  def obl_sensitivity_analysis(self, albT = 'On'):
+  def obl_sensitivity_analysis(self, albT = 'On', save = None): # tracks EBM outputs for min/max obliquity forcing over range of co2 vals
 
     control_orbit = {'control_obl': Helper_Functions().orbit_at_time('obl',1), "control_long":Helper_Functions().orbit_at_time('long',1), 'control_ecc': Helper_Functions().orbit_at_time('ecc',1)}
     dobl = Helper_Functions().orbit_extrema('obl', 'max') - Helper_Functions().orbit_extrema('obl', 'min')
     kyear = 'forced'
 
-    iterations = 100
+    iterations = 100 # resolution
     
-    x_range = np.linspace(100,600,iterations)
+    x_range = np.linspace(100,600,iterations) # co2 forcing range
 
     max_obl_output = []
     min_obl_output = []
@@ -810,6 +752,13 @@ class experiment():
         min_obl_run = Model_Class.model(self, self.control_orbit_type, self.config, self.Ti, CO2_ppm = i, D = None, F = 0, moist = self.control_moist, albT = 5, seas = self.control_seas, thermo = self.control_thermo,
           obl = Helper_Functions().orbit_extrema('obl', "min"), long = control_orbit['control_long'], ecc = control_orbit['control_ecc'], kyear = kyear, Albfin_co2 = co2_Albfin)
         min_obl_output.append(min_obl_run)
+    
+    if save != None:
+
+      with open('obl_min_CO2runs_output.pkl', 'wb') as f:
+              pickle.dump(min_obl_output, f)
+      with open('obl_max_CO2runs_output.pkl', 'wb') as f:
+              pickle.dump(max_obl_output, f)
 
 
     dASRdalpha = []
@@ -957,7 +906,7 @@ class experiment():
     
     return x_range, obl_sensitivity_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines , packed_Tgrad, full_tgrad_max_obl, full_tgrad_min_obl
 
-class Orbital_Insolation():
+class Orbital_Insolation(): # computes insolation values from orbital parameters
 
   def __init__(self, from_ktime=2000, until_ktime = 0):
 
@@ -1072,10 +1021,9 @@ class Orbital_Insolation():
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
-    # converting x to lattitude for insolation method input
+   
+    # converting x to latitude for insolation method input
     x = np.rad2deg(np.arcsin(x))
-
-    #breakpoint()
     
     if lat_array == 0:
 
@@ -1166,20 +1114,6 @@ class Orbital_Insolation():
     else:
       return "get_insolation input must be positive integer"
 
-  def get_energy(self, grid, lat_array = 0, lat = 0, from_lat = None, to_lat = None, from_month = None, to_month = None): #returns Watts for a given latitude band
-
-      inso = self.avg_insolation(grid, lat_array, lat, from_lat, to_lat, from_month, to_month)
-
-      area = Helper_Functions().area_array(grid)
-
-      area = area[from_lat:to_lat]
-
-      area = np.tile(area, (2000,1)).T
-
-      energy = inso * area
-
-      return energy
-
   def s_array(self, grid, lat_array = 0, from_lat = None, to_lat = None, obl_run = None, obl = None, long = None, ecc = None, kyear = None): #takes in a kyear and returns an insolation-lattitude array for seasonal or annual avg
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
@@ -1193,18 +1127,6 @@ class Orbital_Insolation():
 
     elif kyear-1 < 0:
       return "kyear cannot be a negative value"
-
-  def get_mean_insolation(self, grid, lat_array = 0, from_lat = None, to_lat = None):
-
-    mean_inso_list = []
-
-    for i in range(self.until_ktime+1, self.from_ktime):
-
-      mean_inso = np.mean(self.s_array(i, grid, lat_array, from_lat = from_lat, to_lat = to_lat))
-
-      mean_inso_list.append(mean_inso)
-  
-    return mean_inso_list
 
   def display_orbit(self, kyear): #returns orbital values for a single kyear
 
@@ -1229,34 +1151,13 @@ class Orbital_Insolation():
       
       return kyear0,ecc0,long_peri,obliquity
 
-  def obl_suite(self,grid):
-    
-    kyear0,ecc0,long_peri,obliquity,precession = self.get_orbit()
-
-    min_obl = int(np.min(obliquity))
-    max_obl = int(np.max(obliquity))
-    resolution = 10
-    obl_values = np.linspace(min_obl,max_obl,resolution)
-
-    obl_out = []
-
-    for i in obl_values:
-
-      run = self.s_array(1, grid, obl_run = i, lat_array = "annual")
-
-      obl_out.append(run)
-
-    obl_out = np.array(np.mean(obl_out, axis = 1))
-
-    return obl_out, obl_values
-
-class Helper_Functions():
+class Helper_Functions(): # miscellaneous methods for analysis on EBM output
 
   def __init__(self, output = None):
     
     self.output = output
 
-  def area_array(self, grid, r = 6378100): #calculates the area of a zonal band on earth
+  def area_array(self, grid, r = 6378100): # calculates the area of a zonal band on earth
 
       n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
       nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1283,7 +1184,7 @@ class Helper_Functions():
 
       return Area_bands
 
-  def geocentric_rad(self,lat): #returns an array of radii for each latitude for geiod earth
+  def geocentric_rad(self,lat): # returns an array of radii for each latitude for geiod earth
 
     r_eq = 6378137.0 #m
     r_pole = 6356752.3142 #m
@@ -1292,7 +1193,7 @@ class Helper_Functions():
 
     return geo_r
 
-  def weight_area(self, grid, array): #returns area weighted annual mean insolation
+  def weight_area(self, grid, array): # returns area weighted annual mean insolation
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1316,7 +1217,7 @@ class Helper_Functions():
 
     return annual_mean_insolation
 
-  def make_contours(self, array_1, array_2, array_diff): #returns bounds and step for arrays to contour plot, so nothing is missed and steps are approporaite size
+  def make_contours(self, array_1, array_2, array_diff): # returns bounds and step for arrays to contour plot, so nothing is missed and steps are approporaite size
 
     res_param = 20
 
@@ -1340,7 +1241,7 @@ class Helper_Functions():
 
     return bar_min, bar_max, bar_step, plot_diff_max, plot_diff_min, plot_diff_step
 
-  def find_extrema(self, grid, array, position_array, type = None):
+  def find_extrema(self, grid, array, position_array, type = None): # finds kyear of max/min values
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1394,7 +1295,7 @@ class Helper_Functions():
 
         seasonal_maximum_loc.append(max_position)
 
-  def find_zeros(self, grid, array, position_array, any = None):
+  def find_zeros(self, grid, array, position_array, any = None): # finds position of value closest to 0
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1408,7 +1309,7 @@ class Helper_Functions():
       zero_position = position_array[zero_index]
       output = zero_position
 
-      if any == 'both':
+      if any == 'both': # finds positions for the the closest two values to 0
 
         sorted_list = sorted(array)
         p_min_ultimate = sorted_list[1]
@@ -1444,7 +1345,7 @@ class Helper_Functions():
 
       return max_ice_extent, min_ice_extent, mean_ice_extent
 
-  def find_lat_of_value(self, grid, array, position_array, value = 0.4, save_icelines = 'Off', filename = None):
+  def find_lat_of_value(self, grid, array, position_array, value = 0.4, save_icelines = 'Off', filename = None): # finds the max, min, mean, and all latitudes where specified value occurs
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1496,12 +1397,12 @@ class Helper_Functions():
       
       return max_val, min_val, mean_val, positions_S 
 
-  def find_nearest_value(self, array, value):
+  def find_nearest_value(self, array, value): # finds nearest latitude to specified value 
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return array[idx]
 
-  def find_value_at_lat(self,grid,array,lat):
+  def find_value_at_lat(self,grid,array,lat): # finds the value at a specified latitude
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1514,7 +1415,7 @@ class Helper_Functions():
     
     return value_at_lat
 
-  def find_kyear_extrema(self, orbit_type, extrema_type):
+  def find_kyear_extrema(self, orbit_type, extrema_type): # finds kyear where orbital extrema occur
     
     kyear,ecc,long_peri,obl,prec = Orbital_Insolation().get_orbit()
 
@@ -1547,7 +1448,7 @@ class Helper_Functions():
 
       return max_kyear
 
-  def orbit_extrema(self, orbit_type, extrema_type):
+  def orbit_extrema(self, orbit_type, extrema_type): # finds orbital parameter extrema in range of Laskar 2004 look up table
 
     kyear,ecc,long_peri,obl,prec = Orbital_Insolation().get_orbit()
 
@@ -1570,7 +1471,7 @@ class Helper_Functions():
 
       return float(np.max(orbit_type))
   
-  def orbit_at_time(self, orbit_type, kyear):
+  def orbit_at_time(self, orbit_type, kyear): # finds obrital parameter float value at specified kyear
 
     kyear0,ecc,long_peri,obl,prec = Orbital_Insolation().get_orbit()
 
@@ -1587,7 +1488,7 @@ class Helper_Functions():
     
     return float(orbit)
 
-  def band_width(self, grid, units = 'km'):
+  def band_width(self, grid, units = 'km'): # finds distance between grid cells in specified units of km ,latitude, or sine of latitude
 
       n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
       nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1612,7 +1513,7 @@ class Helper_Functions():
 
         return output
 
-  def take_gradient(self, grid, arr_1, diffx = 'deg'):
+  def take_gradient(self, grid, arr_1, diffx = 'deg'): # takes gradient of 1 or 2 dimentional matrices
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1627,7 +1528,7 @@ class Helper_Functions():
         gradient = np.array(gradient)
         gradient = gradient / lat_dist 
         return gradient
-    elif arr_1.ndim == 2:
+    elif arr_1.ndim == 2: # gradient along axis 1
         gradient = []
         for i in range(0, nt):
             T_slice = np.gradient(arr_1[i, :])
@@ -1636,7 +1537,7 @@ class Helper_Functions():
         gradient = gradient / lat_dist  
         return gradient
 
-  def table_1_outs(self, grid, model_output, Hemi = 'S'):
+  def table_1_outs(self, grid, model_output, Hemi = 'S'): # finds values from EBM output for data table 1
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1699,7 +1600,7 @@ class Helper_Functions():
 
     return GMT, eq_pole_diff, global_mean_ins, E_transport_mag, E_transport_loc, T_grad_mag, T_grad_loc, geo_wind_mag, geo_wind_loc, max_ice, min_ice, mean_ice, GMA, GM_OLR
 
-  def table_2_outs(self, grid, model_output, Hemi = "S"):
+  def table_2_outs(self, grid, model_output, Hemi = "S"): # finds values from EBM output for data table 2
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1754,13 +1655,13 @@ class Helper_Functions():
       geo_wind_loc = self.find_extrema(grid, geo_wind, lat, 'max')
 
     if Tfin.ndim == 2:
-      max_ice, min_ice, mean_ice = ice_lines
+      max_ice, min_ice, mean_ice, S_positions = ice_lines
     else:
-      max_ice, min_ice, mean_ice = ice_lines 
+      max_ice, min_ice, mean_ice, S_positions = ice_lines 
 
     return GMT, eq_pole_diff, global_mean_ins, E_transport_mag, E_transport_loc, T_grad_mag, T_grad_loc, geo_wind_mag, geo_wind_loc, max_ice, min_ice, mean_ice
 
-  def format_data(self, df):
+  def format_data(self, df): # formats data table numerical values
     
     for i in range(0, len(df.iloc[0,:])):
 
@@ -1784,31 +1685,22 @@ class Helper_Functions():
 
     return df
 
-  def CO2_to_A(self,CO2_ppm):
+  def CO2_to_A(self,CO2_ppm): # CO2 radiative forcing equation from Myrhe 1998
 
-      S_efolding = 5.35 # Myhre, 1998
+      S_efolding = 4 # Sherwood, 2020
       
-      #A = 196
-      A = 192.9499973
+      A = 196 # From default MEBM
 
-      A = A - np.log((CO2_ppm/280)) * S_efolding
+      A = A - np.log2((CO2_ppm/280)) * S_efolding
 
       return A
 
-  def CO2_forcing(self, CO2):
-
-    S_efolding = 5.35 # W/ m^2 2xCO2
-
-    forcing = np.log(CO2/280) * S_efolding
-
-    return forcing
-
-  def sensitivity_analysis(self, run_1, run_2):
+  def sensitivity_analysis(self, run_1, run_2): # determines radiative forcings of model, determines climate sensitivity feedback parameters
   
     tfin_1, Efin_1, Tfin_1, T0fin_1, ASRfin_1, S_1, Tg_1, mean_S_1, OLR_1, kyear_1, E_transport_1, T_grad_1, alpha_1, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = run_1
     tfin_2, Efin_2, Tfin_2, T0fin_2, ASRfin_2, S_2, Tg_2, mean_S_2, OLR_2, kyear_2, E_transport_2, T_grad_2, alpha_2, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = run_2
 
-    B = 1.8#4/2.6
+    B = 1.8  # model lambda no-feedback [C/(W/m2)]
     model_GMT_changd_2xCO2 = 4 / B #2.22 #C
     CO2_Rforce_double = 4 #W/m^2
     sensitivity_parameter = model_GMT_changd_2xCO2 / CO2_Rforce_double
@@ -1836,19 +1728,21 @@ class Helper_Functions():
     dASRdalpha = S_1*(Albfin_2-Albfin_1)
     dASRdalpha = np.mean(dASRdalpha)
 
-    net_r = dASRdI + dASRdalpha + delta_FCO2
+    net_r = delta_I + dASRdI + dASRdalpha + delta_FCO2
 
     calculated_delta_GMT = sensitivity_parameter * (net_r)
 
+    experiemntally_determined_sensitivity_parameter = delta_GMT / net_r
+    
+    lambda_ice = (-delta_FCO2 / delta_GMT) + 1.8
+
+    calculated_delta_GMT = experiemntally_determined_sensitivity_parameter * (net_r)
+
     unnacounted_change = delta_GMT - calculated_delta_GMT
 
-    B_model = (dASRdI + dASRdalpha + delta_FCO2) / delta_GMT
+    return dASRdI, dASRdalpha, delta_FCO2, delta_GMT, calculated_delta_GMT, unnacounted_change, lambda_ice
 
-    #breakpoint()
-
-    return dASRdI, dASRdalpha, delta_FCO2, delta_GMT, calculated_delta_GMT, unnacounted_change
-
-  def calculate_zonal_wind(self, T_grad):
+  def calculate_zonal_wind(self, T_grad): # uses linear regression from CAM to find geostrophic winds velocities
 
     #np.save(arr = T_grad, file = 'T_grad_save_for_reg.npy')
 
@@ -1864,49 +1758,17 @@ class Helper_Functions():
 
     return zonal_wind
 
-  def seasonal_zonal_regression(self, T_grad):
+  def sea_ice_ext_to_area(self,extent_lat): # converts sea ice extent (latitude) to a surface area (m)
 
-    from CESM_data import all_popts
+    r = 6378100 #m
 
-    popt1, popt2, popt3, popt4, popt5, popt6, popt7, popt8, popt9, popt10, popt11, popt12 = all_popts
+    lat_extent_rad = np.deg2rad(extent_lat)
 
-    # Getting Tgrad within southern ocean bounds
-    lats = experiment().lat_deg
-    lat_pole_bound = self.find_nearest_value(lats, -70)
-    lat_eq_bound = self.find_nearest_value(lats, -40)
-    index_pole_lat = np.where(lats == lat_pole_bound)[0][0]
-    index_eq_lat = np.where(lats == lat_eq_bound)[0][0]
-    
-    SO_lats = lats[index_pole_lat:index_eq_lat]
-    SO_Tgrad = T_grad[:,index_pole_lat:index_eq_lat]
+    area = 2 * np.pi * (r**2) * (1 - -np.cos(lat_extent_rad))
 
-    # Breaking up Tgrad into 12 sections and storing
-    Tgrad1 = SO_Tgrad[0:83,:]
-    Tgrad2 = SO_Tgrad[83:167,:]
-    Tgrad3 = SO_Tgrad[167:251,:]
-    Tgrad4 = SO_Tgrad[251:335,:]
-    Tgrad5 = SO_Tgrad[335:419,:]
-    Tgrad6 = SO_Tgrad[419:503,:]
-    Tgrad7 = SO_Tgrad[503:587,:]
-    Tgrad8 = SO_Tgrad[587:671,:]
-    Tgrad9 = SO_Tgrad[671:755,:]
-    Tgrad10 = SO_Tgrad[755:839,:]
-    Tgrad11 = SO_Tgrad[839:923,:]
-    Tgrad12 = SO_Tgrad[923:1000,:]
-    Tgrads = Tgrad1, Tgrad2, Tgrad3, Tgrad4, Tgrad5, Tgrad6, Tgrad7, Tgrad8, Tgrad9, Tgrad10, Tgrad11, Tgrad12
+    return area
 
-    # Compute Winds
-
-    SO_Z_winds = []
-    for i in range(0,12):
-      single_run_winds = (all_popts[i][0]*Tgrads[i]*SO_lats + all_popts[i][1]*SO_lats**2)*Tgrads[i] + all_popts[i][2]+all_popts[i][3]
-      SO_Z_winds.append(single_run_winds)
-
-    SO_all = [item for SO_Z_winds in SO_Z_winds for item in SO_Z_winds]    
-    
-    return SO_all, SO_lats, SO_Tgrad
-
-class Model_Class(): 
+class Model_Class(): # MEBM from (Feldl & Merlis, 2021) with added orbital insolation and sea ice parameters
 
   def __init__(self):
 
@@ -2002,7 +1864,7 @@ class Model_Class():
       S1 = 0.0
 
     ty = np.arange(dt/2,1+dt/2,dt)
-    if S_type == 0:
+    if S_type == 0: # Uses seasonal Insolation given by (North & Coakley 1979)
  
       # Seasonal forcing (WE15 eq.3)
       if seas == 0:
@@ -2017,9 +1879,9 @@ class Model_Class():
       # zero out negative insolation
       S = np.where(S<0,0,S)
 
-    elif S_type == 1:
+    elif S_type == 1: # Uses orbital parameters to determine seasonal TOA insolation
 
-      if kyear != 'forced':
+      if kyear != 'forced': # non-forced will use orbital parameter values at a specifed kyear from Laskar 2004 look up table
 
         if seas == 0:
           
@@ -2030,20 +1892,17 @@ class Model_Class():
         elif seas == 1:
           
           S = Orbital_Insolation().s_array(grid, kyear = kyear, lat_array = 'seas')
-          #S = Orbital_Insolation().s_array(grid, lat_array = 'seas', obl = Helper_Functions().orbit_at_time('obl', kyear), long = Helper_Functions().orbit_at_time('long', kyear), ecc = Helper_Functions().orbit_at_time('ecc', kyear), kyear = kyear)
-
 
           S = np.where(S<0,0,S) 
 
         elif seas == 2:
 
           S = Orbital_Insolation().s_array(grid, kyear = kyear, lat_array = 'seas')
-          #S = Orbital_Insolation().s_array(grid, lat_array = 'seas', obl = Helper_Functions().orbit_at_time('obl', kyear), long = Helper_Functions().orbit_at_time('long', kyear), ecc = Helper_Functions().orbit_at_time('ecc', kyear), kyear = kyear)
-
 
           S = np.where(S<0,0,S)
         
-      elif kyear == 'forced':
+      elif kyear == 'forced': # forced will use indivudual orbital parameter values
+
 
         if seas == 0:
           
@@ -2079,27 +1938,20 @@ class Model_Class():
     OLRfin = np.zeros((n,nt))
     tfin = np.linspace(0,1,nt)
 
-    # Set up preliminary output arrays
-    Epre = np.zeros((n,nt)) 
-    Tpre = np.zeros((n,nt))
-    T0pre = np.zeros((n,nt))
-    ASRpre = np.zeros((n,nt))
-    Albpre = np.zeros((n,nt))
-    tpre = np.linspace(0,1,nt)
-
-
     # Initial conditions
     Tg = T
     E = cw*T
     Energy_Balance = 2
-    while abs(Energy_Balance) > eb:
+    while abs(Energy_Balance) > eb: # model runs to specified energy balance (eb)
+
       # Integration (see WE15_NumericIntegration.pdf)
       # Loop over Years 
+
       for years in range(dur):
-      # e_balance = 100
-      # while e_balance > 0.001:
+ 
         # Loop within One Year
         for i in range(nt):
+
           # forcing
           if albT == 1: #dynamic ice
             alpha = aw * (E>0) + ai * (E<0) #WE15, eq.4
@@ -2127,9 +1979,9 @@ class Model_Class():
           elif albT == 4: #loaded seasonal icelines
 
             if n == 90:
-              alpha_loaded = np.load('testfile_Alb_90cells.npy')
+              alpha_loaded = np.load('Albedo_90cells_A=196_Co2=280.npy')
             else:
-              alpha_loaded = np.load('testfile_Alb.npy')
+              alpha_loaded = np.load('Albedo_120cells_A=196_Co2=280.npy')
 
             alpha = alpha_loaded[:,i]
 
@@ -2193,16 +2045,14 @@ class Model_Class():
     
       Energy_Balance = np.mean(ASRfin, axis=(0,1)) - A - B*np.mean(Tfin, axis=(0,1))
 
-    #---------------------------------------------------------
 
-
+    # analyzing ice lines
     max_ice_extent, min_ice_extent, mean_ice_extent, ice_positions = Helper_Functions().find_lat_of_value(grid, Albfin, lat, ai)
     ice_lines = max_ice_extent, min_ice_extent, mean_ice_extent, ice_positions
-
     if save_Alb == 'On':
-      np.save(file = 'testfile_Alb_90cells', arr = Albfin)
+      np.save(file = "put file name here", arr = Albfin)
  
-    
+    # calculating energy transport
     R_TOA = ASRfin - (A + B*Tfin)
     area = Helper_Functions().area_array(grid)[0]
     dHdlat = area * R_TOA
@@ -2214,39 +2064,27 @@ class Model_Class():
 
     E_transport = np.array(E_transport)
 
+    # caclulating surface temperature gradient
     T_grad = Helper_Functions().take_gradient(grid,Tfin.T, diffx = 'deg') # C /deg
 
-    #Helper_Functions().seasonal_zonal_regression(T_grad)
-
+    # geostrophic wind
     geo_wind =  Helper_Functions().calculate_zonal_wind(T_grad)
     max_geo_wind, min_geo_wind, mean_geo_wind, wind_lines = Helper_Functions().find_lat_of_value(grid, geo_wind, lat, 'maximum')
 
+    # coriolis parameter
     f = 2*omega*sin(np.arcsin(x))
     f = np.tile(f, (nt,1))
 
-    T_grad_m =  1000*Helper_Functions().take_gradient(grid,Tfin.T,diffx='km')
-
-    #T_fin_K = [Tfin +273.15 for i in Tfin]
-    T_fin_K = Tfin + 273.15
-   # T_fin_K = np.asarray(T_fin_K)
-
-    # breakpoint()
-    analytic_geo_wind = (-9.8* T_grad_m * 0.01) / (roh * f * T_fin_K.T)
-    #breakpoint()
-    #geo_wind = analytic_geo_wind.T
-
+    # WSC
     wind_stress = (geo_wind ** 2) * roh * drag_coeff
 
     wind_stress_curl = Helper_Functions().take_gradient(grid,wind_stress.T) # m / s deg
-
 
     mean_S = np.mean(S, axis=(0,1))
     OLR = A - B*Tfin
     OLR = np.mean(OLR,axis = (1))
     OLR = R_TOA
     
- #---------------------------------------------------------
-
     if hide_run == None:
       print(f'{np.mean(Tfin, axis=(0,1))} global mean temp')
       print(f'{np.ptp(np.mean(Tfin, axis=1))} equator-pole temp difference')
@@ -2261,6 +2099,7 @@ class Model_Class():
     E_transport = E_transport.T
     T_grad = T_grad.T
     S = S.T
+
     if seas == 0:
       Efin = np.mean(Efin, axis = 1)
       Tfin = np.mean(Tfin, axis = 1)
@@ -2289,10 +2128,9 @@ class Model_Class():
       OLRfin = np.mean(OLRfin, axis = 1)
       wind_stress_curl = np.mean(wind_stress_curl, axis = 1)
 
-  
     return tfin, Efin, Tfin, T0fin, ASRfin, S, Tg, mean_S, OLR, kyear, E_transport, T_grad, alpha, geo_wind, ice_lines, Albfin, OLRfin, CO2_ppm, wind_stress_curl
 
-class Figures():
+class Figures(): # generates specified figures
 
   def __init__(self):
     pass
@@ -2459,29 +2297,33 @@ class Figures():
 
         fig,axs = plt.subplots(ncols = 3, figsize = (12,8))
 
-        plt.suptitle('Annual Mean Default Insoaltion = {:.2f}, Annual Mean Orbital Insolation {:.2f}, Annual Mean Difference {:.2f}'.format(mean_S_def, mean_S_orb, (mean_S_def - mean_S_orb)))
+        axs[0].set_title('Seasonal TOA Insolation EBM Insolation \n Global Mean Insoaltion = {:.2f}W/m²'.format(mean_S_def))
+        contour_1 = axs[0].contourf(dur_plt,lat,S_def_seas.T,np.arange(0,500,10), extend = 'max', cmap=plt.get_cmap('hot'))
 
-        axs[0].set_title('Default Seasonal Insolation')
-        contour_1 = axs[0].contourf(dur_plt,lat,S_def_seas,np.arange(bar_min,bar_max,bar_step), extend = 'max', cmap=plt.get_cmap('hot'))
+        axs[1].set_title('Seasonal TOA Insolation Orbital Insolation \n Global Mean Insolation {:.2f}W/m²'.format(mean_S_orb))
+        contour_2 = axs[1].contourf(dur_plt,lat,S_orb_seas.T,np.arange(0,500,10), extend = 'max', cmap=plt.get_cmap('hot'))
 
-        axs[1].set_title('Orbital Seasonal Insolation')
-        contour_2 = axs[1].contourf(dur_plt,lat,S_orb_seas,np.arange(bar_min,bar_max,bar_step), extend = 'max', cmap=plt.get_cmap('hot'))
-
-        axs[2].set_title('Seasonal Difference')
-        contour_3 = axs[2].contourf(dur_plt,lat,inso_difference,np.arange(plot_diff_min,plot_diff_max,plot_diff_step), extend = 'max', cmap=plt.get_cmap('hot'))
+        axs[2].set_title('Seasonal Difference \n Global Mean Difference {:.2f}W/m²'.format((mean_S_orb - mean_S_def)))
+        contour_3 = axs[2].contourf(dur_plt,lat,inso_difference.T,np.arange(-190,190,1), extend = 'both', cmap=plt.get_cmap('jet'))
         
-        axs[0].set_xlabel('days')
-        axs[1].set_xlabel('days')
-        axs[2].set_xlabel('days')
-        axs[0].set_ylabel('lat')
-        axs[1].set_ylabel('lat')
-        axs[2].set_ylabel('lat')
+        axs[0].set_xlabel('time (days)')
+        axs[1].set_xlabel('time (days)')
+        axs[2].set_xlabel('time (days)')
+        axs[0].set_ylabel('latitude (ϕ)')
 
-        plt.colorbar(contour_1,ax = axs[0])
-        plt.colorbar(contour_2,ax = axs[1])
-        plt.colorbar(contour_3,ax = axs[2])
+        axs[0].text(1.2, 0.975, "(a)", transform=axs[0].transAxes,
+        fontsize=16)
+        axs[1].text(1.2, 0.975, "(b)", transform=axs[1].transAxes,
+        fontsize=16)
+        axs[2].text(1.2, 0.975, "(c)", transform=axs[2].transAxes,
+        fontsize=16)
+       
 
-        fig.savefig('ContourCompare.jpg')
+        plt.colorbar(contour_1,ax = axs[0], label = 'W/m²')
+        plt.colorbar(contour_2,ax = axs[1], label = 'W/m²')
+        plt.colorbar(contour_3,ax = axs[2], label = 'W/m²')
+
+        fig.savefig('ContourCompare.png')
       
       elif subchart == "annual":
 
@@ -2527,39 +2369,48 @@ class Figures():
 
         bar_min, bar_max, bar_step, plot_diff_max, plot_diff_min, plot_diff_step = Helper_Functions().make_contours(Tfin_def_seas, Tfin_orb_seas, temp_difference)
 
+        plot_extrema = np.max(np.abs([plot_diff_min,plot_diff_max])) 
+
         dur_plt = np.linspace(0,365,nt)
         lat = np.rad2deg(np.arcsin(x))
 
         fig,axs = plt.subplots(ncols = 3, figsize = (12,8))
-
-        plt.suptitle('global mean default Temperature = {:.2f}, global mean orbital Temperature {:.2f}, global mean difference {:.2f}'.format(mean_Tfin_def_seas, mean_Tfin_orb_seas, (mean_Tfin_def_seas - mean_Tfin_orb_seas)))
         
-        contour_1 = axs[0].contourf(dur_plt,lat,Tfin_def_seas,np.arange(bar_min,bar_max,bar_step), extend = 'both')
-        axs[0].set_title('Seasonal Temp Default ins')
+        contour_1 = axs[0].contourf(dur_plt,lat,Tfin_def_seas,np.arange(-25,25,1), extend = 'both')
+        axs[0].set_title('Seasonal Temperature EBM Insolation \n Global Mean Temperature = {:.2f}'.format(mean_Tfin_def_seas))
 
-        contour_2 = axs[1].contourf(dur_plt,lat,Tfin_orb_seas,np.arange(bar_min,bar_max,bar_step),  extend = 'both')
-        axs[1].set_title('Seasonal Temp Orbital ins')
+        contour_2 = axs[1].contourf(dur_plt,lat,Tfin_orb_seas,np.arange(-25,25,1),  extend = 'both')
+        axs[1].set_title('Seasonal Temperature Orbital Insolation \n Global Mean Temperature {:.2f}'.format(mean_Tfin_orb_seas))
 
-        contour_3 = axs[2].contourf(dur_plt,lat,temp_difference,np.arange(plot_diff_min,plot_diff_max,plot_diff_step),  extend = 'both')
-        axs[2].set_title('Seasonal Difference')
+        contour_3 = axs[2].contourf(dur_plt,lat,temp_difference,np.arange(-3,3,0.01),  extend = 'both', cmap=plt.get_cmap('bwr'))
+        axs[2].set_title('Seasonal Difference \n Global Mean Difference {:.2f}'.format((mean_Tfin_orb_seas - mean_Tfin_def_seas)))
 
-        test = axs[0].contour(dur_plt,lat,Tfin_def_seas,levels = [0], colors = 'red', label = 'Sea Ice Extent')
-        test = axs[1].contour(dur_plt,lat,Tfin_orb_seas,levels = [0], colors = 'red', label = 'Sea Ice Extent')
+        iceline_contour_0 = axs[0].contour(dur_plt,lat,Tfin_def_seas,levels = [0], colors = 'red', label = 'Sea Ice Extent')
+        iceline_contour_1 = axs[1].contour(dur_plt,lat,Tfin_orb_seas,levels = [0], colors = 'red', label = 'Sea Ice Extent')
 
-        plt.colorbar(contour_1,ax = axs[0])
-        plt.colorbar(contour_2,ax = axs[1])
-        plt.colorbar(contour_3,ax = axs[2])
+        axs[0].text(1.2, 0.975, "(a)", transform=axs[0].transAxes,
+        fontsize=16)
+        axs[1].text(1.2, 0.975, "(b)", transform=axs[1].transAxes,
+        fontsize=16)
+        axs[2].text(1.2, 0.975, "(c)", transform=axs[2].transAxes,
+        fontsize=16)
+        
+        plt.colorbar(contour_1,ax = axs[0], label = '°C')
+        plt.colorbar(contour_2,ax = axs[1], label = '°C')
+        plt.colorbar(contour_3,ax = axs[2], label = 'Δ°C')
 
-        axs[0].set_xlabel('dur')
-        axs[1].set_xlabel('dur')
-        axs[2].set_xlabel('dur')
-        axs[0].set_ylabel('lat')
-        axs[1].set_ylabel('lat')
-        axs[2].set_ylabel('lat')
+        axs[0].set_xlabel('time (days)')
+        axs[1].set_xlabel('time (days)')
+        axs[2].set_xlabel('time (days)')
+        axs[0].set_ylabel('latitude (ϕ)')
+        
+
+        axs[0].clabel(iceline_contour_0)
+        axs[1].clabel(iceline_contour_1)
+        
 
         if True == True:
-          print('savefig')
-          plt.savefig('ContourCompare_Temp.jpg')
+          plt.savefig('ContourCompare_Temp.png')
 
       elif subchart == 'annual':
 
@@ -2579,10 +2430,10 @@ class Figures():
 
         plt.suptitle('global mean default Temperature = {:.2f}, global mean orbital Temperature {:.2f}, global mean difference {:.2f}'.format(mean_Tfin_def_annual, mean_Tfin_orb_annual, (mean_Tfin_def_annual - mean_Tfin_orb_annual)))
 
-        axs[0].set_title('Annual Temp Default ins')
+        axs[0].set_title('Annual Temp EBM Insolation')
         axs[0].plot(lat,Tfin_def_annual)
 
-        axs[1].set_title('Annual Temp Orbital ins')
+        axs[1].set_title('Annual Temp Orbital Insolation')
         axs[1].plot(lat,Tfin_orb_annual)
 
         axs[2].set_title('Annual Difference')
@@ -2606,8 +2457,9 @@ class Figures():
           kyear0_2,ecc0_2,long_peri_2,obliquity_2 = Orbital_Insolation().display_orbit(S_kyear2)
 
           dur_plt = np.linspace(0,365,nt)
+          lat = np.rad2deg(np.arcsin(x))
 
-          inso_difference = S_seas_kyear1 - S_seas_kyear2
+          inso_difference = S_seas_kyear1.T - S_seas_kyear2.T
 
           bar_min, bar_max, bar_step, plot_diff_max, plot_diff_min, plot_diff_step = Helper_Functions().make_contours(S_seas_kyear1, S_seas_kyear2, inso_difference)
 
@@ -2632,9 +2484,9 @@ class Figures():
             axs[1].set_title('Orbital Seasonal Insolation {}kyr'.format(kyr2_display))
             axs[2].set_title('Seasonal Difference')
           
-          contour_1 = axs[0].contourf(dur_plt,x,S_seas_kyear1,np.arange(bar_min,bar_max,bar_step), extend = 'max', cmap=plt.get_cmap('hot'))
-          contour_2 = axs[1].contourf(dur_plt,x,S_seas_kyear2,np.arange(bar_min,bar_max,bar_step), extend = 'max', cmap=plt.get_cmap('hot'))
-          contour_3 = axs[2].contourf(dur_plt,x,inso_difference,np.arange(plot_diff_min,plot_diff_max,plot_diff_step), extend = 'max', cmap=plt.get_cmap('hot'))
+          contour_1 = axs[0].contourf(dur_plt,lat,S_seas_kyear1.T,np.arange(0,525,15), extend = 'max', cmap=plt.get_cmap('hot'))
+          contour_2 = axs[1].contourf(dur_plt,lat,S_seas_kyear2.T,np.arange(0,525,15), extend = 'max', cmap=plt.get_cmap('hot'))
+          contour_3 = axs[2].contourf(dur_plt,lat,inso_difference,np.arange(-50,50,1), extend = 'both', cmap=plt.get_cmap('bwr'))
 
           plt.colorbar(contour_1,ax = axs[0])
           plt.colorbar(contour_2,ax = axs[1])
@@ -2643,7 +2495,7 @@ class Figures():
           axs[0].set_xlabel('days')
           axs[1].set_xlabel('days')
           axs[2].set_xlabel('days')
-          axs[0].set_ylabel('sin(φ)')
+          axs[0].set_ylabel('latitude')
 
           fig.savefig('ContourCompare_Paleo.jpg')
 
@@ -2666,8 +2518,6 @@ class Figures():
 
           diff_S_lats = list(zip(inso_difference, lat))
 
-         # breakpoint()
-
           fig,axs = plt.subplots(ncols = 3, figsize = (12,8))
 
           plt.suptitle('global mean Insolation {}kyr = {:.2f}, global mean Insolation {}kyr = {:.2f}, global mean difference = {:.2f}'.format(kyr1_display, mean_S_kyear1, kyr2_display, mean_S_kyear2, (mean_S_kyear1 - mean_S_kyear2)))
@@ -2688,7 +2538,7 @@ class Figures():
 
           fig.savefig('ContourCompare_Paleo.jpg')
 
-      if subchart == 'forcing':
+      if subchart == 'forcing': # obliquity forcing
 
         output_1 = np.load('control_1110_low_obl.npy', allow_pickle=True)
         output_2 = np.load('control_1110_high_obl.npy', allow_pickle=True)
@@ -2700,33 +2550,18 @@ class Figures():
         inso_difference = S_seas_kyear2 - S_seas_kyear1
         temp_difference = Tfin_2 - Tfin_1
 
-        #breakpoint()
-
         fig, axs = plt.subplots(ncols = 2)
 
-        #contour_1 = axs[0].contourf(dur_plt, experiment().lat_deg, inso_difference, np.arange(-20,50,0.5), extend = 'max', cmap=plt.get_cmap('hot'))
-        #contour_1 = axs[1].contour(dur_plt, experiment().lat_deg, temp_difference, 0, cmap=plt.get_cmap('hot'))
-        #contour_1 = axs[0].contour(dur_plt, experiment().lat_deg, inso_difference, 0, color = 'black')
-        contour_2 = axs[1].contourf(dur_plt, experiment().lat_deg, temp_difference, np.arange(-2,2,0.005), extend = 'max', cmap=plt.get_cmap('seismic'))
         contour_1 = axs[0].contourf(dur_plt, experiment().lat_deg, inso_difference, np.arange(-50,50,0.5), extend = 'max', cmap=plt.get_cmap('jet'))
-
-        #test1 = axs[0].contour(dur_plt,experiment().lat_deg,0,levels = [0], colors = 'black')
-        #test2 = axs[1].contour(dur_plt,experiment().lat_deg,temp_difference,levels = [0], colors = 'black')
-
-        #test_1 = axs[1].plot(dur_plt, ice_lines_1[3], color = 'red', label = 'Low Obliquity Mean Ice Line')
-        #test_2 = axs[1].plot(dur_plt, ice_lines_2[3], color = 'blue', label = 'High Obliquity Mean Ice Line')
-
-        #axs[1].legend()
-
-        plt.colorbar(contour_1,ax = axs[0])#, label = '[W/m²]')
-        plt.colorbar(contour_2,ax = axs[1])#, label = 'Celcius')
-
+        contour_2 = axs[1].contourf(dur_plt, experiment().lat_deg, temp_difference, np.arange(-2,2,0.005), extend = 'max', cmap=plt.get_cmap('seismic'))
+  
+        plt.colorbar(contour_1,ax = axs[0])
+        plt.colorbar(contour_2,ax = axs[1])
         axs[0].set_xlabel('Time (Days)')
         axs[1].set_xlabel('Time (Days)')
 
         axs[0].set_ylabel('Latitude (φ)')
 
-        #plt.suptitle('Energy Balance Model Reponse to Obliquity Forcing')
         axs[0].set_title('Insolation Difference Between \n Minimum and Maximum Obliquity')
         axs[1].set_title('Temperature Difference From \n Obliquity Forcing')
 
@@ -2857,7 +2692,6 @@ class Figures():
       axs[1].plot(-kyear0, precession, label = 'precession', color = 'darkblue')
       axs[2].plot(-kyear0, Orbital_Insolation().avg_insolation(experiment().config,lat_array= "local", from_lat = 65, to_lat = 66, from_month = experiment().month['June'], to_month = experiment().month['September']), color = 'darkorange')
 
-
       axs[2].set_xlabel('kyear')
 
       axs[0].set_ylabel('obliquity (deg)')
@@ -2882,7 +2716,7 @@ class Figures():
 
       plt.savefig('65N_2Mya_Summer.jpg')
 
-    elif chart == 11: #OLR and ASR plots BROKEN
+    elif chart == 11: #OLR and ASR plots
 
       tfin, Efin, Tfin, T0fin, ASRfin_1, S_def_annual, Tg, mean_S_def, OLR_def, S_kyear, E_transport, T_grad, alpha, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = output_1
       tfin, Efin, Tfin, T0fin, ASRfin_2, S_orb_annual, Tg, mean_S_orb, OLR_orb, S_kyear, E_transport, T_grad, alpha, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = output_2
@@ -2912,20 +2746,16 @@ class Figures():
       axs[1].set_title("Orbital Energy Balance")
       axs[1].legend()
 
-    elif chart == 12: #fake?Energy Transport Paleo Compare2
+    elif chart == 12: # Energy Transport Compare
       
       tfin, Efin, Tfin_annual_kyear2, T0fin, ASRfin, S_annual_kyear2, Tg, mean_S_kyear2, OLR, S_kyear, E_transport, T_grad, alpha, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = output_2
       lat = np.rad2deg(np.arcsin(x))
      
       if subchart == 'annual':
-
-        #kyear0_1,ecc0_1,long_peri_1,obliquity_1 = Orbital_Insolation().display_orbit(S_kyear)
-
         
         fig, axs = plt.subplots(nrows = 1)
         axs.set_xlabel('latitude')
         axs.set_ylabel('Watts')
-        #axs.set_title('obl {}'.format(obliquity_1))
         axs.plot(ax,E_transport)
       
       elif subchart == 'seas':
@@ -3084,8 +2914,6 @@ class Figures():
         SO_wind, SO_lats, SO_Tgrad = Helper_Functions().seasonal_zonal_regression(T_grad1.T)
         SO_wind, SO_lats, SO_geo_wind = Helper_Functions().seasonal_zonal_regression(geo_wind_1.T)
 
-        #breakpoint()
-
         kyear0_1,ecc0_1,long_peri_1,obliquity_1 = Orbital_Insolation().display_orbit(kyear_1)
         kyear0_2,ecc0_2,long_peri_2,obliquity_2 = Orbital_Insolation().display_orbit(kyear_2)
 
@@ -3124,13 +2952,9 @@ class Figures():
         contour_1 = axs[0].contourf(dur_plt,lat,T_grad1.T,np.arange(bar_min,bar_max,bar_step), extend = 'both', cmap=plt.get_cmap('bwr'))
         contour_2 = axs[1].contourf(dur_plt,lat,geo_wind_1,np.arange(bar_min,bar_max,bar_step), extend = 'both', cmap=plt.get_cmap('bwr'))
         contour_3 = axs[2].contourf(dur_plt,lat,trans_difference,np.arange(plot_diff_min,plot_diff_max,plot_diff_step), extend = 'both', cmap=plt.get_cmap('bwr'))
-        #breakpoint()
-        # contour_1 = axs[0].contourf(dur_plt,SO_lats,SO_Tgrad.T,np.arange(-0,1,0.01), extend = 'both', cmap=plt.get_cmap('bwr'))
-        # contour_2 = axs[1].contourf(dur_plt,SO_lats,SO_geo_wind.T,np.arange(14,20,0.01), extend = 'both', cmap=plt.get_cmap('bwr'))
-
+        
         plt.colorbar(contour_1,ax = axs[0])
         plt.colorbar(contour_2,ax = axs[1])
-        #plt.colorbar(contour_3,ax = axs[2])
 
         axs[0].set_xlabel('days')
         axs[1].set_xlabel('days')
@@ -3221,16 +3045,7 @@ class Figures():
 
       fig,axs = plt.subplots(figsize = (8,4))
 
-      # axs[0].plot(lat,alpha)
-      # axs_0 = axs[0].twinx()
-      # axs_0.plot(lat,Tfin, color = 'green')
 
-      # axs[1].plot(lat,OLR, color = 'green')
-      # axs_1 = axs[1].twinx()
-      # axs_1.plot(lat,E_transport, color = "blue")
-      # #axs_2 = axs[1].twinx()
-      # #axs_2.plot(lat,S, color = 'red')
-      #plt.suptitle('extrema_1 : {} \n extrema_2 : {} \n ice_line_1 : {} \n ice_line_2 : {} \n wind_extrema_1 : {} \n wind_extrema_2 : {}'.format(extrema_1, extrema_2, ice_line_1, ice_line_2, wind_extrema_1, wind_extrema_2))
       plt.suptitle('extrema_1 : {} \n extrema_2 : {} \n wind_extrema_1 : {} \n wind_extrema_2 : {}'.format(extrema_1, extrema_2, wind_extrema_1, wind_extrema_2))
       axs.plot(lat,T_grad_2, color = 'blue', label = "Obl Max")
       axs_1 = axs.twinx()
@@ -3251,14 +3066,11 @@ class Figures():
 
       tfin_1, Efin_1, Tfin_1, T0fin_1, ASRfin_1, S_1, Tg_1, mean_S_1, OLR_1, S_kyear_1, E_transport_1, T_grad_1, alpha_1, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = output_1
       tfin_2, Efin_2, Tfin_2, T0fin_2, ASRfin_2, S_2, Tg_2, mean_S_2, OLR_2, S_kyear_2, E_transport_2, T_grad_2, alpha_2, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = output_2
-      #tfin_3, Efin_3, Tfin_3, T0fin_3, ASRfin_3, S_3, Tg_3, mean_S_3, OLR_3, S_kyear_3, E_transport_3, T_grad_3, alpha_3, geo_wind_3 = output_3
-      #tfin_4, Efin_4, Tfin_4, T0fin_4, ASRfin_4, S_4, Tg_4, mean_S_4, OLR_4, S_kyear_4, E_transport_4, T_grad_4, alpha_4, geo_wind_4 = output_4
-
+     
       lat = np.rad2deg(np.arcsin(x))
       extrema_1 = Helper_Functions().find_extrema(grid, T_grad_1, lat, 'max')
       extrema_2 = Helper_Functions().find_extrema(grid, T_grad_2, lat, 'max')
-      #extrema_3 = Helper_Functions().find_extrema(T_grad_3, lat, 'max')
-      #extrema_4 = Helper_Functions().find_extrema(T_grad_4, lat, 'max')
+
       wind_peak_1 = Helper_Functions().find_extrema(grid, geo_wind_1[0:45], lat, 'max')
       wind_peak_2 = Helper_Functions().find_extrema(grid, geo_wind_2[0:45], lat, 'max')
 
@@ -3269,18 +3081,15 @@ class Figures():
       
       fig,axs = plt.subplots(figsize = (7,8))
 
-      #axs.set_title('Modern extrema at {:.2f}, LGM extrema at {:.2f}, Min Obl at {:.2f}, Max Obl at {:.2f} \n Modern Mag {:.2f}, LGM Mag {:.2f}, Min Obl Mag {:.2f}, Max Obl Mag {:.2f}'.format(extrema_1, extrema_2, extrema_3, extrema_4, np.max(T_grad_1), np.max(T_grad_2), np.max(T_grad_3), np.max(T_grad_4)))
       axs.set_title('Min Obl Tgrad peak at {:.2f}, Max Obl Tgrad peak at {:.2f} \n Min Obl Tgrad Mag {:.2f}, Max Obl Tgrad Mag {:.2f} \n Min obl wind peak : {:.2f}, Max obl wind peak 2 : {:.2f}'.format(extrema_1, extrema_2, np.max(T_grad_1), np.max(T_grad_2), wind_peak_1, wind_peak_2))
       axs.plot(lat,T_grad_1, label = 'Min obl T grad', color = 'blue')
       axs.plot(lat,T_grad_2, label = 'Max obl T grad', color = 'red')
-      #axs.plot(lat,T_grad_3, label = 'Obliquity Minimum')
-      #axs.plot(lat,T_grad_4, label = 'Obliquity Maximum')
+     
       axs_1 = axs.twinx()
       axs_1.plot(lat, geo_wind_1, label = 'Min obl wind speed', color = 'green')
       axs_1.plot(lat, geo_wind_2, label = 'Max obl wind speed', color = 'orange')
       axs_1.set_ylabel('wind speed')
-     # axs_11 = axs[0].twinx()
-     # axs_11.plot(lat, alpha_1)
+  
       axs.set_ylabel("dT/dy")
       axs.set_xlabel('latitude')
 
@@ -3288,14 +3097,9 @@ class Figures():
       lines2, labels2 = axs_1.get_legend_handles_labels()
       axs_1.legend(lines + lines2, labels + labels2, loc=0) 
 
-      # axs[1].plot(lat, wind_diff)
-      # axs_2 = axs[1].twinx()
-      # axs_2.plot(lat, T_grad_diff, color = 'red')
+
       axs.set_xlim(-90,0)
-      #axs[1].set_xlim(-90,0)
-      #axs.set_ylim(1,5.5)
-      # axs.legend()
-      # axs_1.legend()
+    
       plt.tight_layout()
 
     elif chart == 17: # obl sensitivity w/ GMT-xaxis
@@ -3304,16 +3108,14 @@ class Figures():
 
       fig, axs_2 = plt.subplots()
 
-      #axs.plot(x_range, GMT_ouput, label = 'GMT', color = 'green')
-      #axs_2 = axs.twinx()
+  
       axs_2.plot(GMT_ouput, iceline_output, color = 'blue', label = 'mean ice edge')
       axs_2.plot(GMT_ouput, geo_wind_max_lat, label = 'Zwind max lat', color = 'red')
       axs_2.plot(GMT_ouput, t_grad_max_lat, label = 'tgrad max lat', color = 'orange')
       axs_2.plot(GMT_ouput, WSC_max_lat, label = 'WSC max lat', color = 'purple')
       axs_2.legend()
      
-      #axs.axvline(x = Helper_Functions().orbit_at_time('obl',1), color = 'b', label = 'control')
-      #axs.set_xlabel('CO2')
+     
       axs_2.set_xlabel('GMT [C]')
       axs_2.set_ylabel('latitude')
       axs_2.set_title('GMT vs S Hemi Mean Ice Edge, Tgrad, Zwind Max, and Wind Stress Curl'.format(CO2_val))
@@ -3334,6 +3136,7 @@ class Figures():
       mean_icelines_obl_max_static, mean_icelines_obl_min_static, max_icelines_obl_max_static, max_icelines_obl_min_static, min_icelines_obl_max_static, min_icelines_obl_min_static = packed_icelines_static
       Tgrad_30_40_min_static, Tgrad_30_40_max_static, Tgrad_40_50_min_static, Tgrad_40_50_max_static, Tgrad_50_60_min_static, Tgrad_50_60_max_static, Tgrad_60_70_min_static, Tgrad_60_70_max_static = packed_Tgrad_static
 
+      ### Comment in to re-generate output ###
       # output_LGM = Model_Class.model(self, 1, experiment().config, experiment().Ti, CO2_ppm = 190, D = None, F = 0, moist = 1, albT = 3, seas = 1, thermo = 0, kyear = 21)
       # output_modern = Model_Class.model(self, 1, experiment().config, experiment().Ti, CO2_ppm = 280, D = None, F = 0, moist = 1, albT = 3, seas = 1, thermo = 0, kyear = 1)
       # output_dryas = Model_Class.model(self, 1, experiment().config, experiment().Ti, CO2_ppm = 240, D = None, F = 0, moist = 1, albT = 3, seas = 1, thermo = 0, kyear = 12)
@@ -3349,7 +3152,7 @@ class Figures():
       pdf1_3, pdf2_3, pdf3_3, x_range_3, array_vals_3 = pdf_analysis(T_grad_3.T, experiment().lat_deg, ice_lines_3[3])
 
 
-      ###-----------------------------------------###
+      ### Comment in to re-generate output ###
 
       # obl_analysis_dynamic = x_range, obl_sense_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines, packed_Tgrad, full_tgrad_obl_max, full_tgrad_obl_min
       # np.save('HD_obl_analysis_dynamic', obl_analysis_dynamic)
@@ -3377,18 +3180,6 @@ class Figures():
       modern_ax = fig.add_subplot(gs[2:4,6:8])
       dryas_ax = fig.add_subplot(gs[2:4,4:6])
 
-      # sensitivity_ax.plot(x_range, obl_sensitivity_ASR, label = 'CO2 and Obliquity Dependant Sea Ice Feedback')
-      # sensitivity_ax.plot(x_range, obl_sensitivity_ASR_nof, color = 'gray', label = 'No Sea Ice Feedback')
-      # sensitivity_ax.plot(x_range, obl_sensitivity_ASR_static, color = 'red', label = 'CO2 Dependent Sea Ice Feedback')
-      # sensitivity_ax.axhline(0, color = 'black', linestyle = 'dotted')
-      # sensitivity_ax.set_ylabel('ΔGMT/Δε')
-      # sensitivity_ax.set_xlabel('Atmospheric CO2 ppm')
-      # sensitivity_ax.set_title('GMT Response to Obliquity (ε) and CO2 Forcing \n for different Sea Ice Dynamics')
-
-      #fig.text(0.07,0.87, 'CO2 and Obliquity Dependant \n Sea Ice Feedback', color = 'blue', fontsize = 'x-small')
-      #fig.text(0.1,0.57, 'CO2 Dependent \n Sea Ice Feedback', color = 'red', fontsize = 'x-small')
-
-      #sensitivity_ax.legend()
 
       iceline_ax.plot(x_range, mean_icelines_obl_max, label = 'Mean Ice Extent ε Max')
       iceline_ax.plot(x_range, mean_icelines_obl_min, label = 'Mean Ice Extent ε Min', color = 'red')
@@ -3406,7 +3197,6 @@ class Figures():
       iceline_ax.set_ylabel('Latitude (φ)')
       iceline_ax.set_xlabel('Atmospheric CO2 ppm')
       iceline_ax.set_title('Sea Ice Edge v CO2 & Minimum/Maximum Obliquity')
-      #iceline_ax.legend()
 
       
       
@@ -3442,17 +3232,10 @@ class Figures():
 
       t_grad_ax.fill_between(x_range,EQP_obl_max,EQP_obl_min, color = 'gray', alpha = 0.7)
 
-      # t_grad_ax.plot(x_range, Tgrad_50_60_max, label = '50°S-60°S ε Max', color = 'dodgerblue', alpha=0.4)
-      # t_grad_ax.plot(x_range, Tgrad_50_60_min, label = '50°S-60°S ε Min', color = 'orangered', alpha=0.4)
-
-      # t_grad_ax.plot(x_range, Tgrad_60_70_max, label = '60°S-70°S ε Max', color = 'blue', alpha=0.4)
-      # t_grad_ax.plot(x_range, Tgrad_60_70_min, label = '60°S-70°S ε Min', color = 'firebrick', alpha=0.4)
 
       t_grad_ax.set_xlabel('Atmospheric CO2 ppm')
       t_grad_ax.set_ylabel('Meridional Temperature Gradients [ΔK/Δφ]')
       t_grad_ax.set_title('Equator-Pole Temperature Gradient v CO2')
-
-      #t_grad_ax.legend()
 
       if True == True:
         axs[0,0].remove()
@@ -3491,12 +3274,11 @@ class Figures():
       fig.suptitle('GMT, Sea Ice, and Meridional Temperature Gradient Responses to Radiative Forcings in Idealized EBM')
       fig.tight_layout()
 
-      plt.savefig('ForcingSuite.pdf')
+      plt.savefig('ForcingSuite.png')
 
     elif chart == 19: # CAM and MEBM regression compare
 
       tfin, Efin, Tfin, T0fin, ASRfin, S_def_seas, Tg, mean_S_def, OLR, S_kyear, E_transport, T_grad, alpha, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = output_1
-      #tfin, Efin, Tfin_orb_seas, T0fin, ASRfin, S_orb_seas, Tg, mean_S_orb, OLR, S_kyear, E_transport, T_grad, alpha, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = output_2
       lat = np.rad2deg(np.arcsin(x))
 
       from CESM_data import CAM_vars
@@ -3523,7 +3305,6 @@ class Figures():
       axs[1].legend()
 
       axs[2].plot(lat,Tfin, color = 'blue', label = 'MEBM')
-      #axs3 = axs[2].twinx()
       axs[2].plot(CAM_lat,CAM_surf_temp, color = 'red', label = 'GCM')
       axs[2].set_ylabel('Surface Temp [C]')
       axs[2].set_title('MEBM v GCM Surface Temperatures')
@@ -3533,9 +3314,7 @@ class Figures():
 
       tfin, Efin, Tfin, T0fin, ASRfin, S_def_seas, Tg, mean_S_def, OLR, S_kyear, E_transport, T_grad, alpha, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = output_1
 
-      # SO_wind, SO_lats = Helper_Functions().seasonal_zonal_regression(T_grad.T)
-      # SO_wind = np.array(SO_wind)
-      #breakpoint()
+  
       lat = np.rad2deg(np.arcsin(x))
 
       fig, axs = plt.subplots(ncols = 3)
@@ -3555,8 +3334,7 @@ class Figures():
     elif chart == 21: #PDF analysis on model output
 
       from CESM_data import pdf_analysis
-      #from CESM_data import pdf
-
+     
       tfin_1, Efin_1, Tfin_1, T0fin_1, ASRfin_1, S_def_seas_1, Tg_1, mean_S_def_1, OLR_1, S_kyear_1, E_transport_1, T_grad_1, alpha_1, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = output_1
       tfin_2, Efin_2, Tfin_2, T0fin_2, ASRfin_2, S_def_seas_2, Tg_2, mean_S_def_2, OLR_2, S_kyear_2, E_transport_2, T_grad_2, alpha_2, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = output_2
 
@@ -3571,7 +3349,7 @@ class Figures():
       axs[0,0].plot(x_range_1,pdf3_1, color = 'green',label = 'at ice edge')
       axs[0,0].set_xlabel('Wind Stress Curl [N / m^2 deg]')
       axs[0,0].set_ylabel('Probability Density')
-      axs[0,0].set_title('Modern Wind Stress Curl \n mean sea ice edge at {:.2f}'.format(ice_lines_1[2]))
+      axs[0,0].set_title('Modern Wind Stress Curl \n mean sea ice edge at {:.2f}°S'.format(abs(ice_lines_1[2])))
 
       axs[0,0].legend()
       axs[0,0].hist(array_vals_1[1],color = 'red', label = 'sub arctic tgrad', density = True, alpha = 0.1, histtype='stepfilled')
@@ -3598,7 +3376,7 @@ class Figures():
       axs[0,1].plot(x_range_3,pdf3_3, color = 'green',label = 'at ice edge')
       axs[0,1].set_xlabel('Surface Wind Speed [m/s]')
       axs[0,1].set_ylabel('Probability Density')
-      axs[0,1].set_title('Modern Surface Wind Speed \n mean sea ice edge at {:.2f}'.format(ice_lines_1[2]))
+      axs[0,1].set_title('Modern Surface Wind Speed \n mean sea ice edge at {:.2f}°S'.format(abs(ice_lines_1[2])))
 
       axs[0,1].legend()
       axs[0,1].hist(array_vals_3[1],color = 'red', label = 'sub arctic tgrad', density = True, alpha = 0.1, histtype='stepfilled')
@@ -3626,7 +3404,7 @@ class Figures():
       axs[0,2].plot(x_range_5,pdf3_5, color = 'green',label = 'at ice edge')
       axs[0,2].set_xlabel('Surface Temperature Gradient [K/deg]')
       axs[0,2].set_ylabel('Probability Density')
-      axs[0,2].set_title('Modern Surface Temp Gradients \n mean sea ice edge at {:.2f}'.format(ice_lines_1[2]))
+      axs[0,2].set_title('Modern Surface Temp Gradients \n mean sea ice edge at {:.2f}°S'.format(abs(ice_lines_1[2])))
 
       axs[0,2].legend()
       axs[0,2].hist(array_vals_5[1],color = 'red', label = 'sub arctic tgrad', density = True, alpha = 0.1, histtype='stepfilled')
@@ -3648,15 +3426,282 @@ class Figures():
       fig.suptitle('PDF of Surface Wind Stress Curl, Wind Speed, & Temperature Gradients for Modern and LGM')
       breakpoint()
       fig.tight_layout()
+      plt.savefig('PDF_analysis.png')
+
+    elif chart == 22: #Insolation and Temperautre Difference Plots
+
+      tfin, Efin, Tfin_kyear_1, T0fin, ASRfin, S_seas_kyear1, Tg, mean_S_kyear1, OLR, S_kyear1, E_transport_kyr1, T_grad, alpha, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = output_1
+      tfin, Efin, Tfin_kyear_2, T0fin, ASRfin, S_seas_kyear2, Tg, mean_S_kyear2, OLR, S_kyear2, E_transport_kyr2, T_grad, alpha, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = output_2
+
+      insolation_difference = S_seas_kyear2.T - S_seas_kyear1.T
+      temperature_difference = Tfin_kyear_2 -Tfin_kyear_1
+
+      dur_plt = np.linspace(0,365,nt)
+      lat = np.rad2deg(np.arcsin(x))
+
+      fig,axs = plt.subplots(ncols = 2, figsize = (12,8))
+
+      contour_1 = axs[0].contourf(dur_plt,lat,insolation_difference.T,np.arange(-50,50,0.1), extend = 'both', cmap=plt.get_cmap('jet'))
+      contour_2 = axs[1].contourf(dur_plt,lat,temperature_difference,np.arange(-1.5,1.5,0.01), extend = 'both', cmap=plt.get_cmap('bwr')) 
+
+      plt.colorbar(contour_1,ax = axs[0])
+      plt.colorbar(contour_2,ax = axs[1])
+
+      axs[0].set_xlabel('time (days)')
+      axs[1].set_xlabel('time (days)')
+
+      axs[0].set_ylabel('latitude (ϕ)')
+
+      plt.suptitle('Seasonal Response to Minimum-Maximum Obliquity Forcing')
+
+      axs[0].set_title('TOA Insolation Difference \n Global Mean Insolation Difference: {:.2f}'.format(np.abs(np.mean(S_seas_kyear2-S_seas_kyear1))))
+      axs[1].set_title('Temperature Difference \n Global Mean Temperature Difference: {:.2f}'.format(np.mean(Tfin_kyear_2-Tfin_kyear_1)))
+
+      axs[0].text(1.2, 0.975, "(a)", transform=axs[0].transAxes,
+        fontsize=16)
+      axs[1].text(1.2, 0.975, "(b)", transform=axs[1].transAxes,
+        fontsize=16)
+      
+
+      fig.savefig('MinMaxOrbParamDiff.png')
+
+    elif chart == 23: #Obliquity Sensitivity
+
+      x_range, obl_sense_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines, packed_Tgrad, full_tgrad_obl_max, full_tgrad_obl_min = np.load('HD_obl_analysis_dynamic.npy', allow_pickle=True)
+      mean_icelines_obl_max, mean_icelines_obl_min, max_icelines_obl_max, max_icelines_obl_min, min_icelines_obl_max, min_icelines_obl_min = packed_icelines
+      Tgrad_30_40_min, Tgrad_30_40_max, Tgrad_40_50_min, Tgrad_40_50_max, Tgrad_50_60_min, Tgrad_50_60_max, Tgrad_60_70_min, Tgrad_60_70_max = packed_Tgrad
+      
+      x_range_nof, obl_sense_GMT_nof, obl_sensitivity_ASR_nof, GMT_obl_max_nof, GMT_obl_min_nof, EQP_obl_max_nof, EQP_obl_min_nof, packed_icelines_nof, packed_Tgrad_nof, full_tgrad_obl_max_nof, full_tgrad_obl_min_nof = np.load('HD_obl_analysis_nofeedback.npy', allow_pickle=True)
+      mean_icelines_obl_max_nof, mean_icelines_obl_min_nof, max_icelines_obl_max_nof, max_icelines_obl_min_nof, min_icelines_obl_max_nof, min_icelines_obl_min_nof = packed_icelines_nof
+      Tgrad_30_40_min_nof, Tgrad_30_40_max_nof, Tgrad_40_50_min_nof, Tgrad_40_50_max_nof, Tgrad_50_60_min_nof, Tgrad_50_60_max_nof, Tgrad_60_70_min_nof, Tgrad_60_70_max_nof = packed_Tgrad_nof
+
+      x_range_static, obl_sense_GMT_static, obl_sensitivity_ASR_static, GMT_obl_max_static, GMT_obl_min_static, EQP_obl_max_static, EQP_obl_min_static, packed_icelines_static, packed_Tgrad_static, full_tgrad_obl_max_static, full_tgrad_obl_min_static = np.load('HD_obl_analysis_static.npy', allow_pickle=True)
+      mean_icelines_obl_max_static, mean_icelines_obl_min_static, max_icelines_obl_max_static, max_icelines_obl_min_static, min_icelines_obl_max_static, min_icelines_obl_min_static = packed_icelines_static
+      Tgrad_30_40_min_static, Tgrad_30_40_max_static, Tgrad_40_50_min_static, Tgrad_40_50_max_static, Tgrad_50_60_min_static, Tgrad_50_60_max_static, Tgrad_60_70_min_static, Tgrad_60_70_max_static = packed_Tgrad_static
+
+      fig, axs = plt.subplots()
+
+      axs.plot(x_range, obl_sense_GMT, label = 'Temperature Dependant Sea Ice', color = 'cadetblue')
+      axs.plot(x_range, obl_sense_GMT_static, label = 'Static Sea Ice', color = 'lightcoral')
+      axs.plot(x_range, obl_sense_GMT_nof, label = 'No Feedback', color = 'thistle')
+
+      axs.set_ylabel('Sε [°C/°ε]')
+      axs.set_xlabel('Atmospheric CO₂ [ppmv]')
+      axs.set_title('Obliquity Induced ΔGMT v Atmospheric CO₂ concentrations')
+
+      plt.legend()
+
+      fig.savefig('ObliquitySensitivity.png')
+
+    elif chart == 24: # Sea Ice Ext over CO2 & Obliquity
+
+      
+      x_range, obl_sense_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines, packed_Tgrad, full_tgrad_obl_max, full_tgrad_obl_min = np.load('HD_obl_analysis_dynamic.npy', allow_pickle=True)
+      mean_icelines_obl_max, mean_icelines_obl_min, max_icelines_obl_max, max_icelines_obl_min, min_icelines_obl_max, min_icelines_obl_min = packed_icelines
+      Tgrad_30_40_min, Tgrad_30_40_max, Tgrad_40_50_min, Tgrad_40_50_max, Tgrad_50_60_min, Tgrad_50_60_max, Tgrad_60_70_min, Tgrad_60_70_max = packed_Tgrad
+      
+      x_range_nof, obl_sense_GMT_nof, obl_sensitivity_ASR_nof, GMT_obl_max_nof, GMT_obl_min_nof, EQP_obl_max_nof, EQP_obl_min_nof, packed_icelines_nof, packed_Tgrad_nof, full_tgrad_obl_max_nof, full_tgrad_obl_min_nof = np.load('HD_obl_analysis_nofeedback.npy', allow_pickle=True)
+      mean_icelines_obl_max_nof, mean_icelines_obl_min_nof, max_icelines_obl_max_nof, max_icelines_obl_min_nof, min_icelines_obl_max_nof, min_icelines_obl_min_nof = packed_icelines_nof
+      Tgrad_30_40_min_nof, Tgrad_30_40_max_nof, Tgrad_40_50_min_nof, Tgrad_40_50_max_nof, Tgrad_50_60_min_nof, Tgrad_50_60_max_nof, Tgrad_60_70_min_nof, Tgrad_60_70_max_nof = packed_Tgrad_nof
+
+      x_range_static, obl_sense_GMT_static, obl_sensitivity_ASR_static, GMT_obl_max_static, GMT_obl_min_static, EQP_obl_max_static, EQP_obl_min_static, packed_icelines_static, packed_Tgrad_static, full_tgrad_obl_max_static, full_tgrad_obl_min_static = np.load('HD_obl_analysis_static.npy', allow_pickle=True)
+      mean_icelines_obl_max_static, mean_icelines_obl_min_static, max_icelines_obl_max_static, max_icelines_obl_min_static, min_icelines_obl_max_static, min_icelines_obl_min_static = packed_icelines_static
+      Tgrad_30_40_min_static, Tgrad_30_40_max_static, Tgrad_40_50_min_static, Tgrad_40_50_max_static, Tgrad_50_60_min_static, Tgrad_50_60_max_static, Tgrad_60_70_min_static, Tgrad_60_70_max_static = packed_Tgrad_static
+
+
+      mean_sea_ice_area_obl_max = Helper_Functions().sea_ice_ext_to_area(mean_icelines_obl_max)
+      mean_sea_ice_area_obl_min = Helper_Functions().sea_ice_ext_to_area(mean_icelines_obl_min)
+
+      min_sea_ice_area_obl_max = Helper_Functions().sea_ice_ext_to_area(min_icelines_obl_max)
+      min_sea_ice_area_obl_min = Helper_Functions().sea_ice_ext_to_area(min_icelines_obl_min)
+      
+      max_sea_ice_area_obl_max = Helper_Functions().sea_ice_ext_to_area(max_icelines_obl_max)
+      max_sea_ice_area_obl_min = Helper_Functions().sea_ice_ext_to_area(max_icelines_obl_min)
+
+
+      fig, axs = plt.subplots()
+
+      axs.plot(x_range, mean_icelines_obl_max, label = 'Mean Ice Extent ε Max')
+      axs.plot(x_range, min_icelines_obl_max, label = 'Min Ice Extent ε Max', color = 'dodgerblue', alpha=0.4)
+      axs.plot(x_range, max_icelines_obl_max, label = 'Max Ice Extent ε Max', color = 'cyan', alpha=0.4)
+      
+      axs.plot(x_range, mean_icelines_obl_min, label = 'Mean Ice Extent ε Min', color = 'red')
+      axs.plot(x_range, min_icelines_obl_min, label = 'Min Ice Extent ε Min', color = 'orangered', alpha=0.4)
+      axs.plot(x_range, max_icelines_obl_min, label = 'Max Ice Extent ε Min', color = 'lightsalmon', alpha=0.4)
+
+      axs.fill_between(x_range,mean_icelines_obl_max,mean_icelines_obl_min, color = 'gray', alpha = 0.7)
+      axs.fill_between(x_range,max_icelines_obl_max,max_icelines_obl_min, color = 'gray', alpha = 0.2)
+      axs.fill_between(x_range,min_icelines_obl_max,min_icelines_obl_min, color = 'gray', alpha = 0.2)
+
+      axs.set_ylabel('Latitude of Sea Ice Extent [ϕ]')
+      axs.set_xlabel('Atmospheric CO2 [ppmv]')
+      axs.set_title('Sea Ice Edge v CO2 & Minimum/Maximum Obliquity')
+      axs.legend(fontsize=10)
+
+      fig.savefig('ObliquitySeaIceEdge.png')
+
+    elif chart == 25: #Tgrad changes over different CO2 and Obliquity 
+
+      
+      x_range, obl_sense_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines, packed_Tgrad, full_tgrad_obl_max, full_tgrad_obl_min = np.load('HD_obl_analysis_dynamic.npy', allow_pickle=True)
+      mean_icelines_obl_max, mean_icelines_obl_min, max_icelines_obl_max, max_icelines_obl_min, min_icelines_obl_max, min_icelines_obl_min = packed_icelines
+      Tgrad_30_40_min, Tgrad_30_40_max, Tgrad_40_50_min, Tgrad_40_50_max, Tgrad_50_60_min, Tgrad_50_60_max, Tgrad_60_70_min, Tgrad_60_70_max = packed_Tgrad
+      
+      x_range_nof, obl_sense_GMT_nof, obl_sensitivity_ASR_nof, GMT_obl_max_nof, GMT_obl_min_nof, EQP_obl_max_nof, EQP_obl_min_nof, packed_icelines_nof, packed_Tgrad_nof, full_tgrad_obl_max_nof, full_tgrad_obl_min_nof = np.load('HD_obl_analysis_nofeedback.npy', allow_pickle=True)
+      mean_icelines_obl_max_nof, mean_icelines_obl_min_nof, max_icelines_obl_max_nof, max_icelines_obl_min_nof, min_icelines_obl_max_nof, min_icelines_obl_min_nof = packed_icelines_nof
+      Tgrad_30_40_min_nof, Tgrad_30_40_max_nof, Tgrad_40_50_min_nof, Tgrad_40_50_max_nof, Tgrad_50_60_min_nof, Tgrad_50_60_max_nof, Tgrad_60_70_min_nof, Tgrad_60_70_max_nof = packed_Tgrad_nof
+
+      x_range_static, obl_sense_GMT_static, obl_sensitivity_ASR_static, GMT_obl_max_static, GMT_obl_min_static, EQP_obl_max_static, EQP_obl_min_static, packed_icelines_static, packed_Tgrad_static, full_tgrad_obl_max_static, full_tgrad_obl_min_static = np.load('HD_obl_analysis_static.npy', allow_pickle=True)
+      mean_icelines_obl_max_static, mean_icelines_obl_min_static, max_icelines_obl_max_static, max_icelines_obl_min_static, min_icelines_obl_max_static, min_icelines_obl_min_static = packed_icelines_static
+      Tgrad_30_40_min_static, Tgrad_30_40_max_static, Tgrad_40_50_min_static, Tgrad_40_50_max_static, Tgrad_50_60_min_static, Tgrad_50_60_max_static, Tgrad_60_70_min_static, Tgrad_60_70_max_static = packed_Tgrad_static
+
+      fig, axs = plt.subplots()
+
+      axs.plot(x_range, EQP_obl_max, label = 'ε Max', color = 'blue')
+      axs.plot(x_range, EQP_obl_min, label = 'ε Min', color = 'red')
+
+      axs.plot(x_range, EQP_obl_max_nof, label = 'ε Max nof', color = 'lightblue')
+      axs.plot(x_range, EQP_obl_min_nof, label = 'ε Min nof', color = 'pink')
+
+      axs.plot(x_range, EQP_obl_max_static, label = 'ε Max static', color = 'darkblue')
+      axs.plot(x_range, EQP_obl_min_static, label = 'ε Min static', color = 'darkred')
+
+      axs.set_xlabel('Atmospheric CO2 ppm')
+      axs.set_ylabel('Meridional Temperature Gradients [ΔK/Δφ]')
+      axs.set_title('Equator-Pole Temperature Gradient v CO2')
+
+      axs.legend(fontsize = 10)
+
+      fig.savefig('ObliquityTgrad.png')
+
+    elif chart == 26: # EBM Radiative PDF Analysis (LGM, Early Holocene, Modern)
+
+      
+      x_range, obl_sense_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines, packed_Tgrad, full_tgrad_obl_max, full_tgrad_obl_min = np.load('HD_obl_analysis_dynamic.npy', allow_pickle=True)
+      mean_icelines_obl_max, mean_icelines_obl_min, max_icelines_obl_max, max_icelines_obl_min, min_icelines_obl_max, min_icelines_obl_min = packed_icelines
+      Tgrad_30_40_min, Tgrad_30_40_max, Tgrad_40_50_min, Tgrad_40_50_max, Tgrad_50_60_min, Tgrad_50_60_max, Tgrad_60_70_min, Tgrad_60_70_max = packed_Tgrad
+      
+      x_range_nof, obl_sense_GMT_nof, obl_sensitivity_ASR_nof, GMT_obl_max_nof, GMT_obl_min_nof, EQP_obl_max_nof, EQP_obl_min_nof, packed_icelines_nof, packed_Tgrad_nof, full_tgrad_obl_max_nof, full_tgrad_obl_min_nof = np.load('HD_obl_analysis_nofeedback.npy', allow_pickle=True)
+      mean_icelines_obl_max_nof, mean_icelines_obl_min_nof, max_icelines_obl_max_nof, max_icelines_obl_min_nof, min_icelines_obl_max_nof, min_icelines_obl_min_nof = packed_icelines_nof
+      Tgrad_30_40_min_nof, Tgrad_30_40_max_nof, Tgrad_40_50_min_nof, Tgrad_40_50_max_nof, Tgrad_50_60_min_nof, Tgrad_50_60_max_nof, Tgrad_60_70_min_nof, Tgrad_60_70_max_nof = packed_Tgrad_nof
+
+      x_range_static, obl_sense_GMT_static, obl_sensitivity_ASR_static, GMT_obl_max_static, GMT_obl_min_static, EQP_obl_max_static, EQP_obl_min_static, packed_icelines_static, packed_Tgrad_static, full_tgrad_obl_max_static, full_tgrad_obl_min_static = np.load('HD_obl_analysis_static.npy', allow_pickle=True)
+      mean_icelines_obl_max_static, mean_icelines_obl_min_static, max_icelines_obl_max_static, max_icelines_obl_min_static, min_icelines_obl_max_static, min_icelines_obl_min_static = packed_icelines_static
+      Tgrad_30_40_min_static, Tgrad_30_40_max_static, Tgrad_40_50_min_static, Tgrad_40_50_max_static, Tgrad_50_60_min_static, Tgrad_50_60_max_static, Tgrad_60_70_min_static, Tgrad_60_70_max_static = packed_Tgrad_static
+
+      from CESM_data import pdf_analysis
+
+      tfin_1, Efin_1, Tfin_1, T0fin_1, ASRfin_1, S_def_seas_1, Tg_1, mean_S_def_1, OLR_1, S_kyear_1, E_transport_1, T_grad_1, alpha_1, geo_wind_1, ice_lines_1, Albfin_1, OLRfin_1, CO2_1, wind_stress_curl_1 = np.load('LGM_output.npy', allow_pickle=True)
+      tfin_2, Efin_2, Tfin_2, T0fin_2, ASRfin_2, S_def_seas_2, Tg_2, mean_S_def_2, OLR_2, S_kyear_2, E_transport_2, T_grad_2, alpha_2, geo_wind_2, ice_lines_2, Albfin_2, OLRfin_2, CO2_2, wind_stress_curl_2 = np.load('modern_output.npy', allow_pickle=True)
+      tfin_3, Efin_3, Tfin_3, T0fin_3, ASRfin_3, S_def_seas_3, Tg_3, mean_S_def_3, OLR_3, S_kyear_3, E_transport_3, T_grad_3, alpha_3, geo_wind_3, ice_lines_3, Albfin_3, OLRfin_3, CO2_3, wind_stress_curl_3 = np.load('dryas_output.npy', allow_pickle=True)
+
+      pdf1_1, pdf2_1, pdf3_1, x_range_1, array_vals_1 = pdf_analysis(T_grad_1.T, experiment().lat_deg, ice_lines_1[3])
+      pdf1_2, pdf2_2, pdf3_2, x_range_2, array_vals_2 = pdf_analysis(T_grad_2.T, experiment().lat_deg, ice_lines_2[3])
+      pdf1_3, pdf2_3, pdf3_3, x_range_3, array_vals_3 = pdf_analysis(T_grad_3.T, experiment().lat_deg, ice_lines_3[3])
+
+      fig, axs = plt.subplots(ncols = 3, figsize = (10,6))
+
+      linethick = 2
+
+      axs[0].plot(x_range_1,pdf1_1, color = 'thistle', label = 'over ice', linewidth=linethick)
+      axs[0].plot(x_range_1,pdf2_1, color = 'lightcoral', label = 'over water', linewidth=linethick)
+      axs[0].plot(x_range_1,pdf3_1, color = 'cadetblue',label = 'at ice edge', linewidth=linethick)
+      axs[0].set_xlabel('Meridional Temperature Gradient [K/φ]')
+      axs[0].set_ylabel('Probability Density')
+      axs[0].set_title('LGM Surface MTGs \n Mean Sea Ice Edge at {:.2f}°S'.format(abs(ice_lines_1[2])))
+      axs[0].axvline(1, linestyle = 'dotted', color = 'black')
+      axs[0].legend(loc = 'upper left')
+
+      axs[1].plot(x_range_3,pdf1_3, color = 'thistle', label = 'over ice', linewidth=linethick)
+      axs[1].plot(x_range_3,pdf2_3, color = 'lightcoral', label = 'over water', linewidth=linethick)
+      axs[1].plot(x_range_3,pdf3_3, color = 'cadetblue',label = 'at ice edge', linewidth=linethick)
+      axs[1].set_xlabel('Meridional Temperature Gradient [K/φ]')
+      axs[1].set_title('Early Holocene Surface MTGs \n Mean Sea Ice Edge at {:.2f}°S'.format(abs(ice_lines_3[2])))
+      axs[1].axvline(1, linestyle = 'dotted', color = 'black')
+
+      axs[2].plot(x_range_2,pdf1_2, color = 'thistle', label = 'over ice', linewidth=linethick)
+      axs[2].plot(x_range_2,pdf2_2, color = 'lightcoral', label = 'over water', linewidth=linethick)
+      axs[2].plot(x_range_2,pdf3_2, color = 'cadetblue',label = 'at ice edge', linewidth=linethick)
+      axs[2].set_xlabel('Meridional Temperature Gradient [K/φ]')
+      axs[2].set_title('Modern Surface MTGs \n Mean Sea Ice Edge at {:.2f}°S'.format(abs(ice_lines_2[2])))
+      axs[2].axvline(1, linestyle = 'dotted', color = 'black')
+
+      axs[0].text(0.89, 0.95, "(a)", transform=axs[0].transAxes,
+        fontsize=16)
+      axs[1].text(0.89, 0.95, "(b)", transform=axs[1].transAxes,
+        fontsize=16)
+      axs[2].text(0.89, 0.95, "(c)", transform=axs[2].transAxes,
+        fontsize=16)
+
+      plt.tight_layout()
+
+      fig.savefig('EBM_Radiation_PDF.png')
+
+    elif chart == 27: # chart in development
+
+      x_range, obl_sense_GMT, obl_sensitivity_ASR, GMT_obl_max, GMT_obl_min, EQP_obl_max, EQP_obl_min, packed_icelines, packed_Tgrad, full_tgrad_obl_max, full_tgrad_obl_min = np.load('HD_obl_analysis_dynamic.npy', allow_pickle=True)
+      mean_icelines_obl_max, mean_icelines_obl_min, max_icelines_obl_max, max_icelines_obl_min, min_icelines_obl_max, min_icelines_obl_min = packed_icelines
+      Tgrad_30_40_min, Tgrad_30_40_max, Tgrad_40_50_min, Tgrad_40_50_max, Tgrad_50_60_min, Tgrad_50_60_max, Tgrad_60_70_min, Tgrad_60_70_max = packed_Tgrad
+      
+      x_range_nof, obl_sense_GMT_nof, obl_sensitivity_ASR_nof, GMT_obl_max_nof, GMT_obl_min_nof, EQP_obl_max_nof, EQP_obl_min_nof, packed_icelines_nof, packed_Tgrad_nof, full_tgrad_obl_max_nof, full_tgrad_obl_min_nof = np.load('HD_obl_analysis_nofeedback.npy', allow_pickle=True)
+      mean_icelines_obl_max_nof, mean_icelines_obl_min_nof, max_icelines_obl_max_nof, max_icelines_obl_min_nof, min_icelines_obl_max_nof, min_icelines_obl_min_nof = packed_icelines_nof
+      Tgrad_30_40_min_nof, Tgrad_30_40_max_nof, Tgrad_40_50_min_nof, Tgrad_40_50_max_nof, Tgrad_50_60_min_nof, Tgrad_50_60_max_nof, Tgrad_60_70_min_nof, Tgrad_60_70_max_nof = packed_Tgrad_nof
+
+      x_range_static, obl_sense_GMT_static, obl_sensitivity_ASR_static, GMT_obl_max_static, GMT_obl_min_static, EQP_obl_max_static, EQP_obl_min_static, packed_icelines_static, packed_Tgrad_static, full_tgrad_obl_max_static, full_tgrad_obl_min_static = np.load('HD_obl_analysis_static.npy', allow_pickle=True)
+      mean_icelines_obl_max_static, mean_icelines_obl_min_static, max_icelines_obl_max_static, max_icelines_obl_min_static, min_icelines_obl_max_static, min_icelines_obl_min_static = packed_icelines_static
+      Tgrad_30_40_min_static, Tgrad_30_40_max_static, Tgrad_40_50_min_static, Tgrad_40_50_max_static, Tgrad_50_60_min_static, Tgrad_50_60_max_static, Tgrad_60_70_min_static, Tgrad_60_70_max_static = packed_Tgrad_static
+
+      pass
+
+    elif chart == 28: # surface meridional temperature gradeint contour plot for obliquity sensitivity forcings
+
+      with open('obl_max_CO2runs_output.pkl', 'rb') as f:
+            obl_max_CO2runs_output = pickle.load(f)
+      with open('obl_min_CO2runs_output.pkl', 'rb') as f:
+            obl_min_CO2runs_output = pickle.load(f)
+
+      CO2_range = np.linspace(100,600,100)
+      lat = np.rad2deg(np.arcsin(x))
+      MTG_obl_max = []
+      MTG_obl_min = []
+
+      for i in range(len(obl_max_CO2runs_output)):
+
+        MTG_at_CO2_val_oblmax = obl_max_CO2runs_output[i][11]
+        MTG_at_CO2_val_oblmin = obl_min_CO2runs_output[i][11]
+
+        MTG_obl_max.append(MTG_at_CO2_val_oblmax)
+        MTG_obl_min.append(MTG_at_CO2_val_oblmin)
+
+
+      MTG_obl_max = np.array(MTG_obl_max)
+      MTG_obl_min = np.array(MTG_obl_min)
+
+      MTG_diff = abs(MTG_obl_max) - abs(MTG_obl_min)
+
+
+      fig, axs = plt.subplots(ncols = 3)
+
+      contour_1 = axs[0].contourf(CO2_range,lat,MTG_diff.T,np.arange(-0.1,0.1,0.001), extend = 'max', cmap=plt.get_cmap('bwr'))
+      contour_2 = axs[1].contourf(CO2_range,lat,MTG_obl_max.T,np.arange(-2,2,0.01), extend = 'max', cmap=plt.get_cmap('bwr'))
+      contour_3 = axs[2].contourf(CO2_range,lat,MTG_obl_min.T,np.arange(-2,2,0.01), extend = 'max', cmap=plt.get_cmap('bwr'))
+
+      plt.colorbar(contour_1,ax = axs[0], label = 'W/m²')
+      plt.colorbar(contour_2,ax = axs[1], label = 'W/m²')
+      plt.colorbar(contour_3,ax = axs[2], label = 'W/m²')
+
+      fig.tight_layout()
+      plt.savefig('MTG_contour_FCO2.png')
 
 if __name__ == '__main__':
   experiment().main()
-  #experiment().generate_table_1()
-  #experiment().generate_sensitivity_table(run_type = 'forcing', orb_comp='obl', def_v_orb="Off")
+  #experiment().generate_table_2()
+  #experiment().generate_sensitivity_table(run_type = 'no', orb_comp='obl')
   #experiment().generate_decomp_table()
   #experiment().orbit_and_CO2_suite(x_type = 'CO2')
-  #Figures().figure(experiment().config, chart = 18)
+  #Figures().figure(experiment().config, chart = 23)
   #Figures().figure(experiment().config, chart = 18, subchart='forcing')
+  #experiment().obl_sensitivity_analysis()
  
   print("-------------------------------------------------")
   print("--- %s seconds ---" % (time.time() - start_time))
