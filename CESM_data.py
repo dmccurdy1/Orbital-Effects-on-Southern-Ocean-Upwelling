@@ -13,7 +13,7 @@ from sklearn.linear_model import LinearRegression
 from scipy.interpolate import interp1d
 
 # Define functions
-def take_gradient(arr_1):
+def take_gradient(arr_1): # takes the gradient of an array
     
     if arr_1.ndim == 2:
         gradient = []
@@ -43,10 +43,9 @@ def take_gradient(arr_1):
         gradients = np.array(gradients)
         gradients = gradients / 1.9  # deg #210.9 kmeters
 
-        breakpoint()
         return gradients
 
-def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg = None):
+def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg = None): # finds the corresponding latitude of the maximum value of an array
     positions = []
     if avg == 'On':
         for i in range(0, 12):
@@ -97,13 +96,13 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
                     southern_hemi_positions = southern_hemi_lats[np.nonzero(array_in_loop_southern_hemi)[0][0]]
                     southern_hemi_positions = np.array([southern_hemi_positions])
                     
-        else:
-            southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == np.max(array_in_loop_southern_hemi)]
-        if len(southern_hemi_positions) > 0:
-            ice_ext = np.max(southern_hemi_positions)
-            positions.append(ice_ext)
-        elif len(southern_hemi_positions) <= 0:
-            positions.append(-90.0)
+            else:
+                southern_hemi_positions = southern_hemi_lats[array_in_loop_southern_hemi == np.max(array_in_loop_southern_hemi)]
+            if len(southern_hemi_positions) > 0:
+                ice_ext = np.max(southern_hemi_positions)
+                positions.append(ice_ext)
+            elif len(southern_hemi_positions) <= 0:
+                positions.append(-90.0)
 
 
     max_ice = np.max(positions)
@@ -112,14 +111,14 @@ def find_lat_of_max(array, position_array, ice='Off', ice_frac = 'non-zero', avg
 
     return max_ice, min_ice, mean_ice, positions
 
-def correlation(var_1, var_2, lat=None):
+def correlation(var_1, var_2, lat=None): # determines the correlation value of two data sets
     if lat is not None:
         corr = np.corrcoef(var_1[:, lat], var_2[:, lat])[1][0]
     else:
         corr = np.corrcoef(var_1, var_2)[1][0]
     return corr    
 
-def linear_regression(arr_1, arr_2, lat):
+def linear_regression(arr_1, arr_2, lat): # least square linear regression
 
     x , y = arr_1[:, lat], arr_2[:, lat]
 
@@ -128,17 +127,16 @@ def linear_regression(arr_1, arr_2, lat):
 
     return m,b
 
-def regression_line(x,lat):
+def regression_line(x,lat): # line equation using linear regression
 
     y = all_m[lat] * x[:,lat] + all_b[lat]
 
     return y
 
-def calc_z_wind(T_grad, all_m, all_b):
+def calc_z_wind(T_grad, all_m, all_b): # reconstructs zonal wind from MTG regression
 
     if T_grad.ndim == 2:
         
-        #breakpoint()
         z_wind = all_m * T_grad + all_b
         
         return z_wind
@@ -156,7 +154,7 @@ def calc_z_wind(T_grad, all_m, all_b):
 
         return z_wind_at_each_lon
 
-def poly_fit(x,y,deg):
+def poly_fit(x,y,deg): # fits coefficients of n order polynomial
     
     poly_coeff = np.polyfit(x, y, deg)
     deg_arr = np.flip(np.linspace(0,deg))
@@ -169,30 +167,30 @@ def poly_fit(x,y,deg):
 
     return fit
 
-def reg_func(y,a,b,c):
+def reg_func(y,a,b,c): # simple regression equation
 
     output = (a + b)*y + c
 
     return output
 
-def opt_func(x,a,b,c,d):
+def opt_func(x,a,b,c,d): # ad hoc optimization function
     
     lat, xdata = x
 
     roh = 1.2 #kg /m^3
     omega = 7.27e-5 #s^-1
 
-    output = -(1/(a*np.sin(np.deg2rad(lat)))) * xdata + b+c+d
+    ### comment in and out equations of choice ###
+
+    #output = -(1/(a*np.sin(np.deg2rad(lat)))) * xdata + b+c+d
     #output = -(1/(a*roh*2*omega*np.sin(np.deg2rad(lat)))) * xdata*b + c
     #output = (a*xdata**3 + b*np.sin(np.deg2rad(lat)))*xdata + c + d
-    #breakpoint()
-    #output = (a*xdata*lat + b*lat**2)*xdata + c+d
-
+    output = (a*xdata*lat + b*lat**2)*xdata + c+d
     #output = a*xdata + b*lat*xdata + c*np.sin(d)*xdata
     
     return output
 
-def prep_multivar_data(xdata, xdata_2, y_data, month, lat_bounds = None):
+def prep_multivar_data(xdata, xdata_2, y_data, month, lat_bounds = None): # multivariate regression preparation of model data
     
     months = {'January':0,'February':1,'March':2,'April':3,'May':4,'June':5,'July':6,'August':7,'September':8,'October':9,'November':10,'December':11}
     
@@ -221,11 +219,9 @@ def prep_multivar_data(xdata, xdata_2, y_data, month, lat_bounds = None):
     xdata_full.append(xdata)
     xdata_full.append(mean_of_month_xdata)
 
-
-
     return xdata_full, mean_of_month_ydata
 
-def contour_opt(popt, xdata_full):
+def contour_opt(popt, xdata_full): # preparation for contour plotting
 
     lat, xdata = xdata_full
 
@@ -245,23 +241,20 @@ def contour_opt(popt, xdata_full):
 
     return Z_wind_2d
 
-def find_nearest_value(array, value):
+def find_nearest_value(array, value): # finds nearest specified value in array
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return array[idx]
 
-def contour_for_a_month(xdata_1, xdata_2, y_data, month):
+def contour_for_a_month(xdata_1, xdata_2, y_data, month): # prepares contoru plot for single month
 
     xdata_full, ydata = prep_multivar_data(xdata_1,xdata_2,y_data,month)
 
     lat, xdata = xdata_full
-    #breakpoint()
 
     popts = []
 
     for i in range(0,21):
-
-        #breakpoint()
 
         lat_in_loop = lat[i,:]
         xdata_in_loop = xdata[i,:]
@@ -272,7 +265,7 @@ def contour_for_a_month(xdata_1, xdata_2, y_data, month):
 
         popt, pcov = curve_fit(opt_func,xdata_full_in_loop, ydata)
 
-def stitch_regression(xdata, xdata_2, y_data, lat_bounds = None):
+def stitch_regression(xdata, xdata_2, y_data, lat_bounds = None): # meshes individual months into full year contour plot
 
     months = {'January':0,'February':1,'March':2,'April':3,'May':4,'June':5,'July':6,'August':7,'September':8,'October':9,'November':10,'December':11}
 
@@ -298,7 +291,7 @@ def stitch_regression(xdata, xdata_2, y_data, lat_bounds = None):
     
     return full_time_reg, full_y_data, f_constant, xdata_full, popts
 
-def T_grad_ice_line_analysis(array,position_array,icelines):
+def T_grad_ice_line_analysis(array,position_array,icelines): # compartmentalizes MTGs relative to ice lines
 
     over_ice_vals = []
     lat_of_over_ice_vals = []
@@ -367,13 +360,13 @@ def T_grad_ice_line_analysis(array,position_array,icelines):
 
     return over_ice_vals, over_water_vals, around_ice_vals, lat_of_over_ice_vals, lat_of_water_ice_vals, lat_of_around_ice_vals, lat_range
 
-def lognorm_pdf(x,mu,sigma):
+def lognorm_pdf(x,mu,sigma): # computs lognormal probability density functions
 
     output = (1 / (x*sigma*np.sqrt(2*np.pi))) * np.exp(-((np.log(x)-mu)**2) / (2*(sigma**2)))
 
     return output
 
-def pdf_analysis(array,position_array,icelines):
+def pdf_analysis(array,position_array,icelines): # finds pdfs
 
     array_vals = T_grad_ice_line_analysis(array, position_array, icelines)
 
@@ -386,8 +379,6 @@ def pdf_analysis(array,position_array,icelines):
     sd = np.max(sd)
 
     x_range = np.linspace(mu - 4*sd,mu + 4*sd,1000)
-
-    #breakpoint()
     
     pdf1 = norm.pdf(x_range, mu1, sd1)
     pdf2 = norm.pdf(x_range, mu2, sd2)
@@ -395,7 +386,7 @@ def pdf_analysis(array,position_array,icelines):
 
     return pdf1, pdf2, pdf3, x_range, array_vals
 
-def lon_regression(x1,x2,y):
+def lon_regression(x1,x2,y): # linear regression for longitude values
 
     m_and_b_at_each_lon = []
 
@@ -420,7 +411,7 @@ def lon_regression(x1,x2,y):
 
     return m_and_b_at_each_lon
 
-def monthly_average(array, month):
+def monthly_average(array, month): # computes monthly average of data values
 
     months = {'January':0,'February':1,'March':2,'April':3,'May':4,'June':5,'July':6,'August':7,'September':8,'October':9,'November':10,'December':11}
 
@@ -462,6 +453,11 @@ def monthly_average(array, month):
 
         return mean_of_month_xdata
 
+def coveriance(var1,var2): # returns covariance matrix of two variables
+
+    array = np.vstack((var1,var2))
+
+    return np.cov(array)
 
 # Importing and processing data and model configuration
 data = xr.open_dataset('cpl_1850_f19.cam.h0.nc')
@@ -470,79 +466,80 @@ grid = experiment().config
 n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
 nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
 
-#breakpoint()
 
-# Extracting processing and defining specific variables
+# Extracting processing and defining model variables
 time_dim = int(list(np.shape(data.time))[0]) # Time Step = 1 month ... time = 0 is January
 time_ax = np.linspace(0, time_dim, time_dim)
 lat = data.lat.values
 lon = data.lon.values
+lev = data.lev.values
 cor_param = 2*7.2921159e-5*np.sin(np.deg2rad(lat))
 cor_grad = 1.9*2*7.2921159e-5*np.cos(np.deg2rad(lat))
 
-M_heat_trans = data['VT'].values[:, 0, :, :]  # Getting surface values only
-M_heat_trans = np.mean(M_heat_trans, axis=2)  # Averaging longitude
+M_heat_trans_all = data['VT'].values # meridional heat transport [Km/s]
+M_heat_trans = M_heat_trans_all[:, -1, :, :]  # Getting surface values only
+#M_heat_trans = np.cumsum(M_heat_trans_all, axis = 1)
+M_heat_trans = np.mean(M_heat_trans, axis=2)  # zonal mean
 
-Z_wind = data['U'].values#[:, 0, :, :]  # Getting surface values only
-#Z_wind = np.mean(Z_wind, axis = 3)
-Z_wind_lon = Z_wind[:,-1,:]
-Z_wind = np.mean(Z_wind_lon, axis = 2)
-U10 = data['U10'].values
-U10 = np.mean(U10, axis = 2)
-U2d = data['U2d'].values
-U2d = np.mean(U2d, axis = 2)
-#Z_wind = np.mean(Z_wind, axis=2)  # Averaging longitude
-#Z_wind = np.mean(Z_wind, axis = (0))[-1]
-# Z_wind = data['U'].values[:, 0, :, :]  # Getting surface values only
-# Z_wind = np.mean(Z_wind, axis=2)  # Averaging longitude
+Z_wind = data['U'].values # zonal wind velocity [m/s]
+Z_wind_lon = Z_wind[:,-1,:] # Getting surface values only
+Z_wind = np.mean(Z_wind_lon, axis = 2) # zonal mean
 
-sea_ice = data['ICEFRAC'].values  # Getting values
+U10 = data['U10'].values # zonal wind velocity at 10m [m/s]
+U10 = np.mean(U10, axis = 2) # zonal mean
+
+U2d = data['U2d'].values # zonal mean wind speed defined on ilev
+U2d = np.mean(U2d, axis = 2) # zonal mean
+
+sea_ice = data['ICEFRAC'].values # sea ice surface area fraction 
 sea_ice_lon = sea_ice
-sea_ice = np.mean(sea_ice, axis=2)  # Averaging longitude
-#breakpoint()
+sea_ice = np.mean(sea_ice, axis=2)  # zonal mean
 
-Temp = data['TS'].values  # Getting surface values only
+Temp = data['TS'].values  # surface temperature [K]
 Temp_lon = Temp
-Temp = np.mean(Temp, axis=2)  # Averaging longitude
-#Temp = Temp-273 #Converting to Celcius
+Temp = np.mean(Temp, axis=2)  # zonal mean
 
-#breakpoint()
-
-wind_stress = data['TAUX'].values
+wind_stress = data['TAUX'].values # zonal surface stress [N/m2]
 wind_stress_lon = wind_stress
-wind_stress = np.mean(wind_stress, axis = 2)
+wind_stress = np.mean(wind_stress, axis = 2) # zonal mean
 
-Ins = data['SOLIN'].values  # Getting surface values only
-Ins = np.mean(Ins, axis=2)  # Averaging longitude
+Ins = data['SOLIN'].values  # solar insolation [W/m2]
+Ins = np.mean(Ins, axis=2)  # zonal mean
 
-surf_preassure = data['PSL']
-surf_preassure = np.mean(surf_preassure, axis = 2)
+surf_preassure = data['PS'].values # surface preassure [Pa]
+surf_preassure = np.mean(surf_preassure, axis = 2) # zonal mean
 
-#breakpoint()
+lev_temp = data['T'].values # vertical temperature field
+lev_temp = np.mean(lev_temp, axis = 3) # zonal mean
 
 # Processed data
-T_grad = take_gradient(Temp)
+T_grad = take_gradient(Temp) # meridional surface temperature gradient
 M_grad = take_gradient(M_heat_trans)
-P_grad = take_gradient(surf_preassure)
-WSC = take_gradient(wind_stress)
+P_grad = take_gradient(surf_preassure) # meridional surface preassure gradient
+WSC = take_gradient(wind_stress) # meridionla wind stress curl
 
-test = monthly_average(T_grad,'annual')
+lev_T_grad = []
+for i in range(0,len(lev)): # solving meridional temperature gradient at each level
+    t_grad_at_lev = take_gradient(lev_temp[:,i,:])
+    lev_T_grad.append(t_grad_at_lev)
 
-np.savetxt('surface_temperature_gradients.csv', T_grad)
-np.savetxt('surface_zonal_wind_velocity.csv', Z_wind)
-#T_grad = M_grad
 
-CAM_Tgrad = np.mean(T_grad, axis = 0)
-CAM_Z_wind = np.mean(Z_wind, axis = 0)
+CAM_Tgrad = np.mean(T_grad, axis = 0) # time average
+CAM_Z_wind = np.mean(Z_wind, axis = 0) # time average
 CAM_lat = lat
-CAM_surf_temp = np.mean(Temp,axis = 0)
+CAM_surf_temp = np.mean(Temp,axis = 0) # time average
 CAM_vars = CAM_Tgrad, CAM_Z_wind, CAM_surf_temp, CAM_lat
 
 # Analyzing data
 max_wind = find_lat_of_max(Z_wind, lat)
-max_ice = find_lat_of_max(sea_ice, lat, ice = 'On')
 max_T_grad = find_lat_of_max(T_grad, lat)[3]
 max_WSC_SO = find_lat_of_max(WSC[:, 5:25], lat[5:25])[3]
+max_heat_transport = find_lat_of_max(M_heat_trans, lat)[3]
+
+max_lev_tgrad = []
+for i in range(0,len(lev)): # finding latutude of maximum temperature gradient at each level
+    max_tgrad_at_lev = find_lat_of_max(lev_T_grad[i][:][:], lat)[3]
+    max_lev_tgrad.append(max_tgrad_at_lev)
 
 non_zero_ice_line = find_lat_of_max(sea_ice, lat, ice = 'On', ice_frac = 'non-zero')[3]
 ice_line_half = find_lat_of_max(sea_ice, lat, ice = 'On', ice_frac = '0.5')[3]
@@ -569,7 +566,7 @@ x_40, y_40 = T_grad[:, 26], Z_wind[:, 26]
 x_30, y_30 = T_grad[:, 31], Z_wind[:, 31]
 
 # Linear regression
-m_and_b_at_each_lat = [linear_regression(sea_ice, Z_wind, lat = i) for i in range(0,len(lat))]
+m_and_b_at_each_lat = [linear_regression(M_heat_trans, Z_wind, lat = i) for i in range(0,len(lat))]
 
 all_m = []
 [all_m.append(m_and_b_at_each_lat[i][0]) for i in range(0,len(lat))] 
@@ -600,12 +597,7 @@ R2_50 = r2_score(y_50, regression_line_50)
 R2_40 = r2_score(y_40, regression_line_40)
 R2_30 = r2_score(y_30, regression_line_30)
 
-# Non-Linear Regression on m and b
-# m_fit = poly_fit(lat, all_m, 49)
-# b_fit = poly_fit(lat,all_b,49)
-
 # Interpolation on m and b
-
 model_lat = np.rad2deg(np.arcsin(experiment().config['x']))
 
 m_interp = np.interp(model_lat, lat, all_m)
@@ -613,18 +605,7 @@ b_interp = np.interp(model_lat, lat, all_b)
 
 total_interp_values = m_interp, b_interp
 
-# R^2 Correlation for Polynomial Fit
-# R2_m = r2_score(all_m,m_fit)
-# R2_b = r2_score(all_b,b_fit)
-
-
-# Tgrad over different surfaces
-
-#T_grad_val = T_grad_ice_line_analysis(T_grad, lat, max_ice[3])
-#breakpoint()
-
 # Calculate Zonal Wind from Regression
-
 Z_wind_reg = calc_z_wind(sea_ice, all_m, all_b)
 
 MEBM_Tgrad = np.load('T_grad_save_for_reg.npy')
@@ -635,47 +616,30 @@ func_b = interp1d(lat,all_b, kind = 'linear')
 Z_wind_MEBM_reg_scipy = calc_z_wind(MEBM_Tgrad, func_m(model_lat), func_b(model_lat))
 Z_wind_MEBM_reg_numpy = calc_z_wind(MEBM_Tgrad, m_interp, b_interp)
 
+# Multivariate Regression
 
-# Longitudinal Regression
+# xdata_full, ydata = prep_multivar_data(lat,T_grad,Z_wind,'November')
+# popt, pcov = curve_fit(opt_func,xdata_full, ydata)
 
+Z_year_reg, Z_y_data, f_constant, xdata_full, all_popts = stitch_regression(lat,T_grad, Z_wind, lat_bounds='SO')
+
+    # % difference
+
+coriolis_const = 2*7.29e-5
+f_array = np.array(f_constant)
+normalized_diff = ( abs(f_array - coriolis_const) ) / np.max(f_array) - coriolis_const
+
+    # 2D R^2
+
+R2_contour = r2_score(Z_y_data, Z_year_reg)
+
+# Longitudinal Linear Regression
 m_and_b_for_each_lon = lon_regression(lat,sea_ice_lon,Z_wind_lon)
 
 m_for_each_lon = m_and_b_for_each_lon[:, 0, :]
 b_for_each_lon = m_and_b_for_each_lon[:, 1, :]
 
 z_wind_at_each_lon = calc_z_wind(sea_ice_lon,m_for_each_lon,b_for_each_lon)
-
-#lon_single_test_reg = calc_z_wind()
-
-#breakpoint()
-
-if True == True:
-
-    # Multivariate Regression
-
-    #a,b,c = contour_for_a_month(lat,T_grad,Z_wind,'December')
-
-    xdata_full, ydata = prep_multivar_data(lat,T_grad,Z_wind,'November')#, lat_bounds = "SO")
-    #breakpoint()
-    popt, pcov = curve_fit(opt_func,xdata_full, ydata)
-    #a,b,c = popt
-    #breakpoint()
-    # #contour_opt(popt, xdata_full)
-    #Z_year_reg, Z_y_data, f_constant, xdata_full = stitch_regression(lat,T_grad,Z_wind, lat_bounds='SO')
-    Z_year_reg, Z_y_data, f_constant, xdata_full, all_popts = stitch_regression(lat,T_grad,Z_wind)#, lat_bounds='SO')
-    
-    # % difference
-
-    coriolis_const = 2*7.29e-5
-    f_array = np.array(f_constant)
-    normalized_diff = ( abs(f_array - coriolis_const) ) / np.max(f_array) - coriolis_const
-
-    # 2D R^2
-
-    R2_contour = r2_score(Z_y_data, Z_year_reg)
-
-
-## Preparing figure 14 data (monthly averaging)
 
 ### Lon Avg ###
 
@@ -777,16 +741,15 @@ Indian_ice_line_three_q_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper],
 Indian_full_ice_line_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper], lat[5:SO_upper], ice = 'On', ice_frac = 'full', avg = 'On')[3]
 Indian_boundry_ice_line_avg = find_lat_of_max(Indian_sea_ice_avg[:, 5:SO_upper], lat[5:SO_upper], ice = "On", ice_frac = "contintental boundry", avg = 'On')[3]
 
-
 # Creating figures
 def generate_figures(which_figure):
 
-    if which_figure == 1:
+    if which_figure == 1: # linear regression on zonal wind and surface Meridional Heat Transport at different latitudes
 
         fig, axs = plt.subplots(figsize=(15, 10), nrows=6)
         fig.supylabel('Zonal Wind Speed [m/s]')
-        fig.supxlabel('Meridional Temperature Gradient [K/φ]')
-        axs[0].set_title('Surface Temperature Gadient vs Surface Zonal Wind at 80°S')
+        fig.supxlabel('Meridional Heat Transport [Km/s]')
+        axs[0].set_title('Meridional Heat Transport vs Surface Zonal Wind at 80°S')
         axs[0].scatter(x_80, y_80, label='80°S', color='red')
         axs[0].plot(x_80, regression_line_80, label='Fitted line', color='black')
         axs[0].annotate('Correlation = {:.2f}'.format(corr_80), (0, 76), xycoords='axes points')
@@ -795,7 +758,7 @@ def generate_figures(which_figure):
         
         # ... Repeat for other latitudes ...
 
-        axs[1].set_title('Surface Temperature Gadient vs Surface Zonal Wind at 70°S')
+        axs[1].set_title('Meridional Heat Transport vs Surface Zonal Wind at 70°S')
         axs[1].scatter(x_70,y_70, label = '70°S', color = 'orange')
         axs[1].plot(x_70, regression_line_70, label='Fitted line', color = 'black')
         axs[1].annotate('Correlation = {:.2f}'.format(corr_70), (0,76), xycoords='axes points')
@@ -803,7 +766,7 @@ def generate_figures(which_figure):
         axs[1].legend(loc = 'upper right')
 
 
-        axs[2].set_title('Surface Temperature Gadient vs Surface Zonal Wind at 60°S')
+        axs[2].set_title('Meridional Heat Transport vs Surface Zonal Wind at 60°S')
         axs[2].scatter(x_60,y_60, label = '60°S', color = 'yellow')
         axs[2].plot(x_60, regression_line_60, label='Fitted line', color = 'black')
         axs[2].annotate('Correlation = {:.2f}'.format(corr_60), (0,76), xycoords='axes points')
@@ -811,7 +774,7 @@ def generate_figures(which_figure):
         axs[2].legend(loc = 'upper right')
 
 
-        axs[3].set_title('Surface Temperature Gadient vs Surface Zonal Wind at 50°S')
+        axs[3].set_title('Meridional Heat Transport vs Surface Zonal Wind at 50°S')
         axs[3].scatter(x_50,y_50, label = '50°S', color = 'green')
         axs[3].plot(x_50, regression_line_50, label='Fitted line', color = 'black')
         axs[3].annotate('Correlation = {:.2f}'.format(corr_50), (0,76), xycoords='axes points')
@@ -819,7 +782,7 @@ def generate_figures(which_figure):
         axs[3].legend(loc = 'upper right')
 
 
-        axs[4].set_title('Surface Temperature Gadient vs Surface Zonal Wind at 40°S')
+        axs[4].set_title('Meridional Heat Transport vs Surface Zonal Wind at 40°S')
         axs[4].scatter(x_40,y_40, label = '40°S', color = 'blue')
         axs[4].plot(x_40, regression_line_40, label='Fitted line', color = 'black')
         axs[4].annotate('Correlation = {:.2f}'.format(corr_40), (0,76), xycoords='axes points')
@@ -827,7 +790,7 @@ def generate_figures(which_figure):
         axs[4].legend(loc = 'upper right')
 
 
-        axs[5].set_title('Surface Temperature Gadient vs Surface Zonal Wind at 30°S')
+        axs[5].set_title('Meridional Heat Transport vs Surface Zonal Wind at 30°S')
         axs[5].scatter(x_30,y_30, label = '30°S', color = 'purple')
         axs[5].plot(x_30, regression_line_30, label='Fitted line', color = 'black')
         axs[5].annotate('Correlation = {:.2f}'.format(corr_30), (0,76), xycoords='axes points')
@@ -837,78 +800,90 @@ def generate_figures(which_figure):
         fig.tight_layout()
         fig.savefig('CESM_Zwind_Tgrad.jpg')
 
-    elif which_figure == 2:
+    elif which_figure == 2: # maximum value positions vs time
         fig1, axs1 = plt.subplots()
         axs1.plot(time_ax, max_wind[3], label='max wind position')
-        axs1.plot(time_ax, max_ice[3], label='sea ice edge', color='red')
+        axs1.plot(time_ax, non_zero_ice_line, label='sea ice edge', color='red')
+        axs1.plot(time_ax, ice_line_half, label='sea ice edge', color='green')
+        axs1.plot(time_ax, ice_line_three_q, label='sea ice edge', color='blue')
+        axs1.plot(time_ax, max_T_grad, label='tgrad max', color='purple')
+        axs1.plot(time_ax, max_WSC_SO, label='WSC max', color='orange')
+        axs1.plot(time_ax, max_heat_transport, label='MHT', color='pink')
         axs1.set_xlim(0, 12 * 4)
         axs1.set_ylim(-90, -20)
         axs1.set_title("Maximum Zonal Wind Speed and Max Sea Ice Fraction vs time")
         axs1.set_xlabel('time (months)')
-        #axs1.set_ylabel()
         axs1.legend()
         fig1.savefig('CESM_plot.jpg')
 
-    elif which_figure == 3:
+    elif which_figure == 3: # zonal wind and MHT profile
+
         fig2, axs2 = plt.subplots()
-        axs2.plot(lat, np.mean(Z_wind, axis = 0))
+        axs2.plot(lat, np.mean(Z_wind, axis = 0), label = 'zonal wind')
         axs2_1 = axs2.twinx()
-        axs2_1.plot(lat, np.mean(T_grad, axis = 0), color = 'green')
+        axs2_1.plot(lat, np.mean(M_heat_trans, axis = 0), color = 'green', label = 'MHT')
         axs2.set_xlabel('Lattiude')
         axs2.set_ylabel('Z wind [m/s]')
-        axs2_1.set_ylabel("T grad [K/deg]")
-        axs2.set_title('CAM Annual Mean Surface Tgrad and Zwind vs. lat')
+        axs2_1.set_ylabel("MHT [Km/s]")
+        axs2.set_title('CAM Annual Mean Surface MHT and Zonal Wind Speed vs. Latitude')
 
-        axs2.legend()
-        axs2_1.legend()
+        fig2.legend(loc = (0.83,0.9))
         
-        # axs2_1 = axs2.twinx()
-        # axs2_1.plot(lat, np.mean(M_grad, axis=0), color='green')
-        # axs2_1.set_ylabel('Heat Transport Gradient ~[K/s]')
-        # axs2.set_xlim(-90, 0)
         fig2.savefig('CESM_plot.jpg')
 
-    elif which_figure == 4:
+    elif which_figure == 4: # linear regression slope and intercepts v latitude (MHT and zonal wind)
 
         fig, axs = plt.subplots()
-
-        sin_lat = np.sin(np.deg2rad(lat))
 
         axs.plot(lat, all_m, label = 'm')
         axs1 = axs.twinx()
         axs1.plot(lat, all_b, label = 'b', color = 'red')
-        axs2 = axs.twinx()
-        axs2.plot(model_lat, m_interp, color = 'orange')
+        axs.set_ylabel('slope')
+        axs1.set_ylabel('intercept')
+        axs.set_xlabel('latitude')
+        fig.legend(loc = (0.83,0.9))
 
         fig.tight_layout()
 
         fig.savefig('CESM_plot.jpg')
 
-    elif which_figure == 5:
+    elif which_figure == 5: # Hovmoller plot of MTG, Zonal Wind, and MHT
         
-        fig, axs = plt.subplots(ncols=3)
+        fig, axs = plt.subplots(ncols= 3, figsize = (10,10))
 
-        contour_1 = axs[0].contourf(lat,time_ax[0:24],T_grad[0:24,:],np.arange(np.min(T_grad),np.max(T_grad),0.01), extend = 'both',cmap=plt.get_cmap('bwr'))
-        contour_2 = axs[1].contourf(lat,time_ax[0:24],Z_wind[0:24,:],np.arange(np.min(Z_wind),np.max(Z_wind),1), extend = 'both',cmap=plt.get_cmap('bwr'))
-        #contour_3 = axs[3].contourf(lat,time_ax,T_grad*A_coeff[1],np.arange(np.min(Z_wind),np.max(Z_wind),1), extend = 'both',cmap=plt.get_cmap('bwr'))
+        contour_1 = axs[0].contourf(time_ax[0:24],lat,T_grad[0:24,:].T,np.arange(np.min(T_grad),np.max(T_grad),0.01), extend = 'both',cmap=plt.get_cmap('bwr'))
+        contour_2 = axs[1].contourf(time_ax[0:24],lat,Z_wind[0:24,:].T,np.arange(np.min(Z_wind),np.max(Z_wind),1), extend = 'both',cmap=plt.get_cmap('bwr'))
+        contour_3 = axs[2].contourf(time_ax[0:24],lat,M_heat_trans[0:24,:].T,np.arange(np.min(M_heat_trans),np.max(M_heat_trans),1), extend = 'both',cmap=plt.get_cmap('bwr'))
+
+        axs[0].set_title('Surface Temperature Gradient')
+        axs[0].set_ylabel('latitude')
+        axs[0].set_xlabel('time (months)')
+        
+        axs[1].set_title('Zonal Wind Velocity')
+        axs[1].set_xlabel('time (months)')
+
+        axs[2].set_title('Meridional Heat Transport')
+        axs[2].set_xlabel('time (months)')
+
         
         plt.colorbar(contour_1,ax = axs[0])
         plt.colorbar(contour_2,ax = axs[1])
+        plt.colorbar(contour_3,ax = axs[2])
+
+        fig.tight_layout()
 
 
         fig.savefig('CESM_plot.jpg')
 
-    elif which_figure == 6:
+    elif which_figure == 6: # Hovmoller of southern Ocean Regression vs Data compairison
 
         fig, axs = plt.subplots(ncols = 4, figsize = (10,8))
 
         diff = np.array(Z_year_reg).T - np.array(Z_y_data).T
-        #fig.suptitle("CESM Regrssion over SO to get Zonal Wind from Surface Temperature Gradients \n R² = {}".format(R2_contour))
         fig.suptitle('Zonal Wind Regression from Surface Temperature Gradients in the Southern Ocean \n R² = {}'.format(R2_contour))
         
         axs[3].remove()
-        
-        
+                
         contour_1 = axs[0].contourf(np.linspace(0,12,12),xdata_full[0],np.array(Z_year_reg).T,np.arange(13,50,1), extend = 'both',cmap=plt.get_cmap('Reds'))
         contour_2 = axs[1].contourf(np.linspace(0,12,12),xdata_full[0],np.array(Z_y_data).T,np.arange(13,50,1), extend = 'both',cmap=plt.get_cmap('Reds'))
         contour_3 = axs[2].contourf(np.linspace(0,12,12),xdata_full[0],diff, np.arange(-5,5,0.1), extend = 'both',cmap=plt.get_cmap('bwr'))
@@ -964,7 +939,7 @@ def generate_figures(which_figure):
 
         fig, axs = plt.subplots()
 
-        pdf1, pdf2, pdf3, x_range, array_vals = pdf_analysis(T_grad, lat, max_ice[3])
+        pdf1, pdf2, pdf3, x_range, array_vals = pdf_analysis(T_grad, lat, non_zero_ice_line)
     
         # axs.plot(x_range,pdf1, color = 'blue', label = 'over ice')
         # axs.plot(x_range,pdf2, color = 'red', label = 'over water')
@@ -1292,4 +1267,3 @@ def generate_figures(which_figure):
 # Execute Sript
 if __name__ == '__main__':
     generate_figures(6)
-#breakpoint()
