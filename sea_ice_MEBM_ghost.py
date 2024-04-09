@@ -3701,11 +3701,8 @@ if __name__ == '__main__':
   #experiment().orbit_and_CO2_suite(x_type = 'CO2')
   #Figures().figure(experiment().config, chart = 23)
   #Figures().figure(experiment().config, chart = 18, subchart='forcing')
-  #experiment().obl_sensitivity_analysis()
  
   print("-------------------------------------------------")
   print("--- %s seconds ---" % (time.time() - start_time))
   print("-------------------------------------------------")
   print("")
-
-
