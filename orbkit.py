@@ -52,6 +52,241 @@ mpl.rcParams['ytick.labelsize'] = 8 # reset global fig properties
 mpl.rcParams['ytick.right'] = True # reset global fig properties
 mpl.rcParams['axes.labelsize'] = 8 # reset global fig properties
 
+
+def age(kyear = 0):
+
+  params = Orbital_Insolation(kyear+1, kyear).get_orbit()
+  float_params = tuple([float(i) for i in params])
+  kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+  print('at {} kyr BP: \n eccentricity = {} \n obliquity = {} \n longitude of perihelion = {}'.format(int(abs(kyear)), ecc, obliquity, long_peri))
+
+  output = (ecc, obliquity, long_peri)
+
+  return output
+
+def obliquity(kyear = None):
+
+  if kyear == None:
+
+    params = Orbital_Insolation(1,0).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = obliquity
+
+    return output
+
+  elif isinstance(kyear, int):
+
+    params = Orbital_Insolation(kyear+1, kyear).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = obliquity
+
+    return output
+
+  elif len(tuple(kyear)) == 2:
+
+    from_kyear, to_kyear = kyear
+
+    params = Orbital_Insolation(from_kyear+1, to_kyear).get_orbit()
+    kyear ,ecc ,long_peri ,obliquity ,precession = params
+
+    output = obliquity
+
+    return output
+
+  elif isinstance(kyear, str):
+
+    if kyear == 'maximum':
+      output = Helper_Functions().orbit_extrema('obl','max')
+
+    elif kyear == 'minimum':
+      output = Helper_Functions().orbit_extrema('obl','min')
+
+    else:
+
+      raise ValueError("invalid string input, try 'minimum' or 'maximum'")
+
+    return output
+
+def eccentricity(kyear = None):
+
+  if kyear == None:
+
+    params = Orbital_Insolation(1,0).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = ecc
+
+    return output
+
+  elif isinstance(kyear, int):
+
+    params = Orbital_Insolation(kyear+1, kyear).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = ecc
+
+    return output
+
+  elif len(tuple(kyear)) == 2:
+
+    from_kyear, to_kyear = kyear
+
+    params = Orbital_Insolation(from_kyear+1, to_kyear).get_orbit()
+    kyear ,ecc ,long_peri ,obliquity ,precession = params
+
+    output = ecc
+
+    return output
+
+  elif isinstance(kyear, str):
+
+    if kyear == 'maximum':
+      output = Helper_Functions().orbit_extrema('ecc','max')
+
+    elif kyear == 'minimum':
+      output = Helper_Functions().orbit_extrema('ecc','min')
+
+    else:
+
+      raise ValueError("invalid string input, try 'minimum' or 'maximum'")
+
+    return output
+
+def long_peri(kyear = None):
+
+  if kyear == None:
+
+    params = Orbital_Insolation(1,0).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = long_peri
+
+    return output
+
+  elif isinstance(kyear, int):
+
+    params = Orbital_Insolation(kyear+1, kyear).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = long_peri
+
+    return output
+
+  elif len(tuple(kyear)) == 2:
+
+    from_kyear, to_kyear = kyear
+
+    params = Orbital_Insolation(from_kyear+1, to_kyear).get_orbit()
+    kyear ,ecc ,long_peri ,obliquity ,precession = params
+
+    output = long_peri
+
+    return output
+
+  elif isinstance(kyear, str):
+
+    if kyear == 'maximum':
+      output = Helper_Functions().orbit_extrema('long','max')
+
+    elif kyear == 'minimum':
+      output = Helper_Functions().orbit_extrema('long','min')
+
+    else:
+
+      raise ValueError("invalid string input, try 'minimum' or 'maximum'")
+
+    return output
+
+def precession(kyear = None):
+
+  if kyear == None:
+
+    params = Orbital_Insolation(1,0).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = precession
+
+    return output
+
+  elif isinstance(kyear, int):
+
+    params = Orbital_Insolation(kyear+1, kyear).get_orbit()
+    float_params = tuple([float(i) for i in params])
+    kyear ,ecc ,long_peri ,obliquity ,precession = float_params
+
+    output = precession
+
+    return output
+
+  elif len(tuple(kyear)) == 2:
+
+    from_kyear, to_kyear = kyear
+
+    params = Orbital_Insolation(from_kyear+1, to_kyear).get_orbit()
+    kyear ,ecc ,long_peri ,obliquity ,precession = params
+
+    output = precession
+
+    return output
+
+  elif isinstance(kyear, str):
+
+    if kyear == 'maximum':
+      output = Helper_Functions().orbit_extrema('prec','max')
+
+    elif kyear == 'minimum':
+      output = Helper_Functions().orbit_extrema('prec','min')
+
+    else:
+
+      raise ValueError("invalid string input, try 'minimum' or 'maximum'")
+
+    return output
+
+def insolation(kyear = None, latitude = None):
+
+  if latitude == None:
+    if kyear == None:
+      return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
+    elif isinstance(kyear, int):
+      return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
+
+    elif len(kyear) == 2:
+      from_kyear, to_kyear = kyear
+      return Orbital_Insolation(from_kyear, to_kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
+
+    elif len(tuple(kyear)) == 3:
+      eccentricity, obliquity, long_peri = kyear
+      return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T
+  
+  elif isinstance(latitude, int) or len(latitude) == 2:
+    if kyear == None:
+        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+    elif isinstance(kyear, int):
+      return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+
+    elif len(kyear) == 2:
+      from_kyear, to_kyear = kyear
+      return Orbital_Insolation(from_kyear, to_kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+
+    elif len(tuple(kyear)) == 3:
+      eccentricity, obliquity, long_peri = kyear
+      return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
+    
+  else:
+
+    raise ValueError('invalid latitude input, please use type(int) or a 2-point latitude domain')
+
 class experiment(): # experimental set ups for analysis on EBM
 
   def __init__(self, grid_num = 1):
@@ -102,6 +337,18 @@ class experiment(): # experimental set ups for analysis on EBM
       dur= 100
       dt = 1./nt
       eb = 1e-10
+
+    elif grid == 3:
+
+      n = 180
+      dx = 2./n #grid box width
+      x = np.linspace(-1+dx/2,1-dx/2,n) #native grid
+      xb = np.linspace(-1+dx,1-dx,n-1) 
+      nt = 1000
+      dur= 100
+      dt = 1./nt
+      eb = 1e-10
+
 
     grid_dict = {'n': n, 'dx': dx, 'x': x, 'xb': xb, 'nt': nt, 'dur': dur, 'dt': dt, 'eb':eb}
 
@@ -965,7 +1212,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
         * sin(3*(lambda_long_m - long_peri_rad)) )
     return lambda_long
   
-  def insolation(self, day, lat = 0, obl_run = None, obl = None, long = None, ecc = None, kyear = None):  #returns insolation based on day and lat #https://climlab.readthedocs.io/en/latest/_modules/climlab/solar/insolation.html#daily_insolation
+  def insolation(self, day, lat = 0, obl = None, long = None, ecc = None, kyear = None):  #returns insolation based on day and lat #https://climlab.readthedocs.io/en/latest/_modules/climlab/solar/insolation.html#daily_insolation
 
     S0 = 1365.2 # W/m^2
     
@@ -981,8 +1228,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
       long_peri = long
       ecc0 = ecc
 
-    if obl_run != None:
-      obliquity = obl_run
+
 
     lat_is_xarray = True
     day_is_xarray = True
@@ -1017,7 +1263,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     
     return Fsw
 
-  def avg_insolation(self, grid, lat_array = 0, lat = 0, from_lat = None, to_lat = None, from_month = None, to_month = None, obl_run = None, obl = None, long = None, ecc = None, kyear = None): #returns annual insolation at lat
+  def avg_insolation(self, grid, lat_array = 0, lat = 0, from_lat = None, to_lat = None, from_month = None, to_month = None, obl = None, long = None, ecc = None, kyear = None): #returns annual insolation at lat
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
@@ -1107,6 +1353,62 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
 
       return avg_lat
 
+    elif lat_array == 'integer':
+
+      day = np.linspace(0,self.days_per_year_const,365)
+      
+      avg_lat = []
+
+      for i in x:
+            
+        day_at_lat = self.insolation(day,i, obl = obl, long = long, ecc = ecc, kyear = kyear)
+       
+        avg_lat.append(day_at_lat)
+
+      avg_lat = np.array(avg_lat)
+
+      avg_lat = avg_lat.T
+
+      return avg_lat
+
+    elif lat_array == 'for lat':
+
+      day = np.linspace(0,self.days_per_year_const,365)
+      
+      avg_lat = []
+
+      if isinstance(lat, int):
+
+        if abs(lat) > 90:
+
+          raise ValueError('latitude value is out of degree range (-90,90)')
+        
+        else:
+
+          day_at_lat = self.insolation(day, lat = lat, obl = obl, long = long, ecc = ecc, kyear = kyear)
+          
+          avg_lat.append(day_at_lat)
+
+      elif len(lat) == 2:
+
+        if abs(lat[0]) > 90 or abs(lat[1]) > 90:
+
+          raise ValueError('latitude value is out of degree range (-90,90)')
+
+        else:
+
+          for i in range(lat[0],lat[1]):
+          
+            day_at_lat = self.insolation(day, lat = i, obl = obl, long = long, ecc = ecc, kyear = kyear)
+            
+            avg_lat.append(day_at_lat)
+
+      avg_lat = np.array(avg_lat)
+
+      avg_lat = avg_lat.T
+
+      return avg_lat
+
   def get_insolation(self, grid, kyear, at_lat): #returns annual average insolation at kyear and lattitude
 
     if kyear-1 >= 0:
@@ -1114,16 +1416,16 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     else:
       return "get_insolation input must be positive integer"
 
-  def s_array(self, grid, lat_array = 0, from_lat = None, to_lat = None, obl_run = None, obl = None, long = None, ecc = None, kyear = None): #takes in a kyear and returns an insolation-lattitude array for seasonal or annual avg
+  def s_array(self, grid, lat_array = 0, from_lat = None, to_lat = None, obl = None, long = None, ecc = None, kyear = None): #takes in a kyear and returns an insolation-lattitude array for seasonal or annual avg
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
     
     if kyear == 'forced':
-      return Orbital_Insolation(1,0).avg_insolation(grid, lat_array, from_lat = from_lat, to_lat = to_lat, obl_run = obl_run, obl = obl, long = long, ecc = ecc, kyear = kyear)
+      return Orbital_Insolation(1,0).avg_insolation(grid, lat_array, from_lat = from_lat, to_lat = to_lat, obl = obl, long = long, ecc = ecc, kyear = kyear)
 
     elif type(kyear) == type(0):
-      return Orbital_Insolation(kyear, kyear-1).avg_insolation(grid, lat_array, from_lat = from_lat, to_lat = to_lat, obl_run = obl_run)
+      return Orbital_Insolation(kyear, kyear-1).avg_insolation(grid, lat_array, from_lat = from_lat, to_lat = to_lat)
 
     elif kyear-1 < 0:
       return "kyear cannot be a negative value"
