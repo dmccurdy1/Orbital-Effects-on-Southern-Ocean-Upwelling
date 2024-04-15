@@ -466,7 +466,6 @@ grid = experiment().config
 n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
 nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
 
-
 # Extracting processing and defining model variables
 time_dim = int(list(np.shape(data.time))[0]) # Time Step = 1 month ... time = 0 is January
 time_ax = np.linspace(0, time_dim, time_dim)

@@ -260,11 +260,6 @@ def insolation(kyear = None, latitude = None):
       return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
     elif isinstance(kyear, int):
       return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
-
-    elif len(kyear) == 2:
-      from_kyear, to_kyear = kyear
-      return Orbital_Insolation(from_kyear, to_kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
-
     elif len(tuple(kyear)) == 3:
       eccentricity, obliquity, long_peri = kyear
       return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T
@@ -274,11 +269,6 @@ def insolation(kyear = None, latitude = None):
         return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
     elif isinstance(kyear, int):
       return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
-
-    elif len(kyear) == 2:
-      from_kyear, to_kyear = kyear
-      return Orbital_Insolation(from_kyear, to_kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
-
     elif len(tuple(kyear)) == 3:
       eccentricity, obliquity, long_peri = kyear
       return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
@@ -286,6 +276,36 @@ def insolation(kyear = None, latitude = None):
   else:
 
     raise ValueError('invalid latitude input, please use type(int) or a 2-point latitude domain')
+
+def global_mean_insolation(kyear):
+
+  if isinstance(kyear, int):
+
+    return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
+
+  elif len(kyear) == 2:
+
+    index = abs(kyear[0]-kyear[1]) + 1
+    kyear_range = np.linspace(kyear[0], kyear[1], index, dtype = int)
+    GMI = []
+    for i in kyear_range:
+      GMI_at_kyear = np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
+      GMI.append(GMI_at_kyear)
+
+    return GMI
+
+  elif len(kyear) > 2:
+
+    GMI = []
+
+    for i in kyear:
+
+      GMI_at_kyear = np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
+      GMI.append(GMI_at_kyear)
+
+    return GMI
+
+
 
 class experiment(): # experimental set ups for analysis on EBM
 
@@ -1267,7 +1287,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
 
     n = grid['n']; dx = grid['dx']; x = grid['x']; xb = grid['xb']
     nt = grid['nt']; dur = grid['dur']; dt = grid['dt']; eb = grid['eb']
-   
+
     # converting x to latitude for insolation method input
     x = np.rad2deg(np.arcsin(x))
     
