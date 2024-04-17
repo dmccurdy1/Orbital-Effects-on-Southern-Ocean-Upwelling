@@ -16,7 +16,7 @@ kyears = np.linspace(0,2000,2001)
 plt.plot(-kyears, obl)
 plt.savefig('orbkit_testplot.png')
 
-GMT = ok.GMT(20)
+GMT = ok.climate()
 
 breakpoint()
 

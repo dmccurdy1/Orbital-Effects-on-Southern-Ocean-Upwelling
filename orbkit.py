@@ -327,6 +327,35 @@ def GMT(kyear = None):
     GMT = np.mean(surface_temperature)
     return GMT
 
+def climate(kyear = None):
+
+  if kyear == None:
+
+    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 1, hide_run = 'On')
+    surface_temperature = output[2]
+    meridional_temperature_gradient = output[11]
+    meridional_energy_transport = output[10]
+    outgoing_longwave_radiation = output[16]
+    absorbed_solar_radiation = output[4]
+    southern_hemisphere_sea_ice_edge = output[14][3]
+    insolation = output[5]
+
+    return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+
+  elif isinstance(kyear, int):
+
+    kyear = kyear + 1
+    
+    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = kyear, hide_run = 'On')
+    surface_temperature = output[2]
+    meridional_temperature_gradient = output[11]
+    meridional_energy_transport = output[10]
+    outgoing_longwave_radiation = output[16]
+    absorbed_solar_radiation = output[4]
+    southern_hemisphere_sea_ice_edge = output[14][3]
+    insolation = output[5]
+
+    return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
 
 #---------------------------------------------------------------#
 
@@ -2428,7 +2457,7 @@ class Model_Class(): # MEBM from (Feldl & Merlis, 2021) with added orbital insol
     mean_S = np.mean(S, axis=(0,1))
     OLR = A - B*Tfin
     OLR = np.mean(OLR,axis = (1))
-    OLR = R_TOA
+  
     
     if hide_run == None:
       print(f'{np.mean(Tfin, axis=(0,1))} global mean temp')
