@@ -277,7 +277,11 @@ def insolation(kyear = None, latitude = None):
 
     raise ValueError('invalid latitude input, please use type(int) or a 2-point latitude domain')
 
-def global_mean_insolation(kyear):
+def global_mean_insolation(kyear = None):
+
+  if kyear == None:
+
+    return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
 
   if isinstance(kyear, int):
 
@@ -305,7 +309,26 @@ def global_mean_insolation(kyear):
 
     return GMI
 
+def GMT(kyear = None):
 
+  if kyear == None:
+
+    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 2, thermo = 0, kyear = 1, hide_run = 'On')
+    surface_temperature = output[2]
+    GMT = np.mean(surface_temperature)
+    return GMT
+
+  elif isinstance(kyear, int):
+
+    kyear = kyear + 1
+    
+    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 2, thermo = 0, kyear = kyear, hide_run = 'On')
+    surface_temperature = output[2]
+    GMT = np.mean(surface_temperature)
+    return GMT
+
+
+#---------------------------------------------------------------#
 
 class experiment(): # experimental set ups for analysis on EBM
 

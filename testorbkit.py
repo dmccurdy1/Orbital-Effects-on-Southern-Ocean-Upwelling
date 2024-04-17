@@ -16,7 +16,7 @@ kyears = np.linspace(0,2000,2001)
 plt.plot(-kyears, obl)
 plt.savefig('orbkit_testplot.png')
 
-GMI = ok.global_mean_insolation((109,76,9))
+GMT = ok.GMT(20)
 
 breakpoint()
 
