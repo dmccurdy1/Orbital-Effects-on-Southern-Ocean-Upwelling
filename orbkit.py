@@ -41,6 +41,7 @@ import matplotlib as mpl
 from climlab.solar.orbital.long import OrbitalTable as OrbitalTable #The Laskar 2004 orbital data table 2Mya-present
 from tabulate import tabulate
 import pickle
+from scipy.signal import argrelextrema
 
 start_time = time.time()
 
@@ -64,6 +65,33 @@ def age(kyear = 0):
   output = (ecc, obliquity, long_peri)
 
   return output
+
+def wave_peaks(wave, kyear_range):
+
+  from_kyear, to_kyear = kyear_range
+  params = Orbital_Insolation(from_kyear+1, to_kyear).get_orbit()
+  kyear ,ecc ,long_peri ,obliquity ,precession = params
+
+  if wave == 'obliquity':
+    wave = obliquity
+  elif wave == 'eccentricity':
+    wave = ecc
+  elif wave == 'long_peri':
+    wave = long_peri
+  elif wave == 'precession':
+    wave = precession
+
+  maxima_loc = argrelextrema(wave, np.greater)
+  minima_loc = argrelextrema(wave, np.less)
+
+  maxima_kyear = []
+  minima_kyear = []
+  [maxima_kyear.append(kyear[i]) for i in maxima_loc]
+  [minima_kyear.append(kyear[i]) for i in minima_loc]
+  maxima_kyear = maxima_kyear[0]
+  minima_kyear = minima_kyear[0]
+  
+  return maxima_kyear, minima_kyear
 
 def obliquity(kyear = None):
 
@@ -327,7 +355,7 @@ def GMT(kyear = None):
     GMT = np.mean(surface_temperature)
     return GMT
 
-def climate(kyear = None):
+def climate(kyear = None, moist = None, seas = None):
 
   if kyear == None:
 
@@ -347,6 +375,21 @@ def climate(kyear = None):
     kyear = kyear + 1
     
     output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = kyear, hide_run = 'On')
+    surface_temperature = output[2]
+    meridional_temperature_gradient = output[11]
+    meridional_energy_transport = output[10]
+    outgoing_longwave_radiation = output[16]
+    absorbed_solar_radiation = output[4]
+    southern_hemisphere_sea_ice_edge = output[14][3]
+    insolation = output[5]
+
+    return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+
+  elif len(kyear) == 3:
+
+    eccentricity, obliquity, long_peri = kyear
+ 
+    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 'forced', obl = obliquity, long = long_peri, ecc = eccentricity, hide_run = 'On')
     surface_temperature = output[2]
     meridional_temperature_gradient = output[11]
     meridional_energy_transport = output[10]
