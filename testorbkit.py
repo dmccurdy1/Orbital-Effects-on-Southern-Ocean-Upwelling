@@ -32,20 +32,24 @@ import orbkit as ok
 
 # clim_state = ok.climate((0,20,180))
 
-N65_all_kyear = []
-for i in range(0,2000):
-
-    N65_kyear_i = ok.insolation(i)
-    N65_kyear_i_max = np.mean(N65_kyear_i)
-
-    N65_all_kyear.append(N65_kyear_i_max)
-
-N65 = np.hstack(N65_all_kyear)
-
-plt.plot(-np.linspace(0,2000,len(N65)), N65)
 
 
-plt.savefig('orbkit_testplot.png')
+# N65_all_kyear = []
+# for i in range(0,2000):
 
+#     N65_kyear_i = ok.insolation(i)
+#     N65_kyear_i_max = np.mean(N65_kyear_i)
+
+#     N65_all_kyear.append(N65_kyear_i_max)
+
+# N65 = np.hstack(N65_all_kyear)
+
+# plt.plot(-np.linspace(0,2000,len(N65)), N65)
+
+
+# plt.savefig('orbkit_testplot.png')
+
+
+isno_t = ok.insolation(0,latitude=(-90,90))
 breakpoint()
 
