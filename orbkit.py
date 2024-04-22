@@ -1472,17 +1472,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
 
       day = np.linspace(0,self.days_per_year_const,365)
       
-      avg_lat = []
-
-      for i in x:
-            
-        day_at_lat = self.insolation(day,i, obl = obl, long = long, ecc = ecc, kyear = kyear)
-       
-        avg_lat.append(day_at_lat)
-
-      avg_lat = np.array(avg_lat)
-
-      avg_lat = avg_lat.T
+      avg_lat = self.insolation(day, x, obl = obl, long = long, ecc = ecc, kyear = kyear)
 
       return avg_lat
 
