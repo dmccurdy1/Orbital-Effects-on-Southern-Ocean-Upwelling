@@ -281,7 +281,7 @@ def precession(kyear = None):
 
     return output
 
-def insolation(kyear = None, latitude = None):
+def insolation(kyear = None, latitude = None, output_type = 'array'):
 
   if latitude == None:
     if kyear == None:
@@ -292,7 +292,7 @@ def insolation(kyear = None, latitude = None):
       eccentricity, obliquity, long_peri = kyear
       return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T
   
-  elif isinstance(latitude, int) or len(latitude) == 2:
+  elif isinstance(latitude, int):
     if kyear == None:
         return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
     elif isinstance(kyear, int):
@@ -300,10 +300,44 @@ def insolation(kyear = None, latitude = None):
     elif len(tuple(kyear)) == 3:
       eccentricity, obliquity, long_peri = kyear
       return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
-    
-  else:
 
-    raise ValueError('invalid latitude input, please use type(int) or a 2-point latitude domain')
+  elif isinstance(latitude, tuple):
+    if len(latitude) == 2 or len(latitude) == 1:
+      if kyear == None:
+        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+      elif isinstance(kyear, int):
+        return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+      elif len(tuple(kyear)) == 3:
+        eccentricity, obliquity, long_peri = kyear
+        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
+    else:
+      raise TypeError('invalid latitude input, please use tuple of length 1 or 2')
+  
+  elif isinstance(latitude, list):
+    if len(latitude) == 1:
+      if kyear == None:
+        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+      elif isinstance(kyear, int):
+        return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+      elif len(tuple(kyear)) == 3:
+        eccentricity, obliquity, long_peri = kyear
+        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
+    else:
+      if kyear == None:
+        array_at_lats = []
+        [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
+        return array_at_lats
+      elif isinstance(kyear, int):
+        array_at_lats = []
+        [array_at_lats.append(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
+        return array_at_lats
+      elif len(tuple(kyear)) == 3:
+        eccentricity, obliquity, long_peri = kyear
+        array_at_lats = []
+        [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=i).T) for i in latitude]
+        return array_at_lats
+  else:
+    raise ValueError('invalid latitude input, please use int, tuple or list')
 
 def global_mean_insolation(kyear = None):
 
@@ -1375,7 +1409,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     coszen = Ho*sin(phi)*sin(delta) + cos(phi)*cos(delta)*sin(Ho)
 
     Fsw = (S0/pi) *( (1+ecc0*cos(lambda_long -deg2rad(long_peri)))**2 / (1-ecc0**2)**2 * coszen)
-    
+
     return Fsw
 
   def avg_insolation(self, grid, lat_array = 0, lat = 0, from_lat = None, to_lat = None, from_month = None, to_month = None, obl = None, long = None, ecc = None, kyear = None): #returns annual insolation at lat
@@ -1503,7 +1537,8 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
         else:
 
           lat_step_num = abs(lat[1]-lat[0]) + 1
-          lat_range = np.linspace(lat[0],lat[1],lat_step_num)          
+          grid = np.linspace(-1 + (1/lat_step_num), 1 - (1/lat_step_num), lat_step_num) # model native grid in sin(lat)
+          lat_range = np.rad2deg(np.arcsin(grid)) # converting to degrees
           avg_lat = self.insolation(day, lat = lat_range, obl = obl, long = long, ecc = ecc, kyear = kyear)
             
            

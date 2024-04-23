@@ -30,7 +30,7 @@ import orbkit as ok
 # [plt.axvline(i, color = 'green') for i in wave_min_rec]
 # plt.savefig('orbkit_testplot.png')
 
-# clim_state = ok.climate((0,20,180))
+#clim_state = ok.climate()
 
 
 
@@ -50,6 +50,8 @@ import orbkit as ok
 # plt.savefig('orbkit_testplot.png')
 
 
-isno_t = ok.insolation(0,latitude=(-90,90))
+inso = ok.insolation(latitude = [-90,0,90])
+
+
 breakpoint()
 
