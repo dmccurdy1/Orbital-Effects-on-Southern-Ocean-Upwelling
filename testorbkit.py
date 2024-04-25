@@ -51,9 +51,11 @@ import orbkit as ok
 # plt.savefig('orbkit_testplot.png')
 
 
-inso_3 = ok.insolation(kyear = (0,0,0), latitude = (1,65), output_type = 'array')
-inso = ok.insolation(kyear = 1, latitude = (1,65), output_type = 'array')
-inso_def = ok.insolation()
+# inso_m = ok.insolation(kyear = (0,0,0), latitude = [1,65], output_type = 'latitude mean')
+# inso = ok.insolation(kyear = (0,0,0), latitude = [1,65])#, output_type = 'latitude mean')
+
+inso_tuple_1 = ok.insolation(kyear = 1, output_type = 'array')
+inso_tuple_1_m = ok.insolation(kyear = 1, output_type = 'latitude mean')
 
 breakpoint()
 
