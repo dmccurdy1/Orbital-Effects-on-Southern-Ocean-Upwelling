@@ -290,20 +290,24 @@ def insolation(kyear = None, latitude = None, output_type = 'array'):
         return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
       elif output_type == 'latitude mean':
         return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 0)
-    
+      elif output_type == 'time mean':
+        return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 1)
     elif isinstance(kyear, int):
       if output_type == 'array':
         return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
       elif output_type == 'latitude mean':
-        return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis =0)
-    
+        return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 0)
+      elif output_type == 'time mean':
+        return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 1)
     elif len(tuple(kyear)) == 3:
       eccentricity, obliquity, long_peri = kyear
       if output_type == 'array':
         return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T
       elif output_type == 'latitude mean':
         return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T, axis = 0)
-  
+      elif output_type == 'time mean':
+        return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T, axis = 1)
+
   elif latitude != None:
 
     if isinstance(latitude, str):
