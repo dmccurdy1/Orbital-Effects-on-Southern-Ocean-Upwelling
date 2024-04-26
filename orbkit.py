@@ -281,32 +281,32 @@ def precession(kyear = None):
 
     return output
 
-def insolation(kyear = None, latitude = None, output_type = 'array'):
+def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = 'Off'):
 
   if latitude == None:
     
     if kyear == None:
       if output_type == 'array':
-        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
+        output =  Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
       elif output_type == 'latitude mean':
-        return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 0)
+        output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 0)
       elif output_type == 'time mean':
-        return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 1)
+        output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 1)
     elif isinstance(kyear, int):
       if output_type == 'array':
-        return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
+        output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T
       elif output_type == 'latitude mean':
-        return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 0)
+        output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 0)
       elif output_type == 'time mean':
-        return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 1)
+        output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T, axis = 1)
     elif len(tuple(kyear)) == 3:
       eccentricity, obliquity, long_peri = kyear
       if output_type == 'array':
-        return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T
+        output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T
       elif output_type == 'latitude mean':
-        return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T, axis = 0)
+        output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T, axis = 0)
       elif output_type == 'time mean':
-        return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T, axis = 1)
+        output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '').T, axis = 1)
 
   elif latitude != None:
 
@@ -317,45 +317,45 @@ def insolation(kyear = None, latitude = None, output_type = 'array'):
     elif isinstance(latitude, int):
       if kyear == None:
         if output_type == 'array' or output_type == 'latitude mean':
-          return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+          output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
         elif output_type == 'time mean':
-          return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T)
+          output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T)
       elif isinstance(kyear, int):       
         if output_type == 'array' or output_type == 'latitude mean':
-          return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+          output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
         elif output_type == 'time mean':
-          return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T)
+          output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T)
       elif len(tuple(kyear)) == 3:
         eccentricity, obliquity, long_peri = kyear
         if output_type == 'array' or output_type == 'latitude mean':
-          return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
+          output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
         elif output_type == 'time mean':
-          return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T)
+          output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T)
       
     elif isinstance(latitude, tuple):
       if len(latitude) == 2 or len(latitude) == 1:
         if kyear == None:
           if output_type == 'array':
-            return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+            output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
           elif output_type == 'latitude mean':
-            return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 0)
+            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 0)
           elif output_type == 'time mean':
-            return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 1)
+            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 1)
         elif isinstance(kyear, int):
           if output_type == 'array':
-            return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+            output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
           elif output_type == 'latitude mean':
-            return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 0)
+            output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 0)
           elif output_type == 'time mean':
-            return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 1)
+            output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T, axis = 1)
         elif len(tuple(kyear)) == 3:
           eccentricity, obliquity, long_peri = kyear
           if output_type == 'array':
-            return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
+            output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
           elif output_type == 'latitude mean':
-            return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T, axis = 0)
+            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T, axis = 0)
           elif output_type == 'time mean':
-            return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T, axis = 1)
+            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T, axis = 1)
       else:
         raise TypeError('invalid latitude tuple input, please use tuple of length 1 or 2')
     
@@ -363,49 +363,49 @@ def insolation(kyear = None, latitude = None, output_type = 'array'):
       if len(latitude) == 1:
         if kyear == None:
           if output_type == 'array' or output_type == 'latitude mean':
-            return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T
+            output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T
           elif output_type == 'time mean':
-            return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T)
+            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T)
         elif isinstance(kyear, int):
           if output_type == 'array' or output_type == 'latitude mean':
-            return Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T
+            output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T
           elif output_type == 'time mean':
-            return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T)
+            output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T)
         elif len(tuple(kyear)) == 3:
           eccentricity, obliquity, long_peri = kyear
           if output_type == 'array' or output_type == 'latitude mean':
-            return Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude[0]).T
+            output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude[0]).T
           elif output_type == 'time mean':
-            return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude[0]).T)
+            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude[0]).T)
       else:
         if kyear == None:
           array_at_lats = []
           [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
           if output_type == 'array':
-            return array_at_lats
+            output = array_at_lats
           elif output_type == 'latitude mean':
-            return np.mean(array_at_lats, axis = 0)
+            output = np.mean(array_at_lats, axis = 0)
           elif output_type == 'time mean':
-            return np.mean(array_at_lats, axis = 1)
+            output = np.mean(array_at_lats, axis = 1)
         elif isinstance(kyear, int):
           array_at_lats = []
           [array_at_lats.append(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
           if output_type == 'array':
-            return array_at_lats
+            output = array_at_lats
           elif output_type == 'latitude mean':
-            return np.mean(array_at_lats, axis = 0)
+            output = np.mean(array_at_lats, axis = 0)
           elif output_type == 'time mean':
-            return np.mean(array_at_lats, axis = 1)
+            output = np.mean(array_at_lats, axis = 1)
         elif len(tuple(kyear)) == 3:
           eccentricity, obliquity, long_peri = kyear
           array_at_lats = []
           [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=i).T) for i in latitude]
           if output_type == 'array':
-            return array_at_lats
+            output = array_at_lats
           elif output_type == 'latitude mean':
-            return np.mean(array_at_lats, axis = 0)
+            output = np.mean(array_at_lats, axis = 0)
           elif output_type == 'time mean':
-            return np.mean(array_at_lats, axis = 1)
+            output = np.mean(array_at_lats, axis = 1)
   
     else:
   
@@ -413,6 +413,85 @@ def insolation(kyear = None, latitude = None, output_type = 'array'):
 
   else:
     raise ValueError('invalid latitude input, please use type int, tuple or list')
+  
+  if show_plot == 'On':
+    
+    if np.array(output).ndim == 2:
+
+      day_ax = np.linspace(0,365,len(output[1]))
+  
+      if isinstance(latitude, list):
+
+        fig, axs = plt.subplots()
+        
+        for i in range(len(latitude)):
+
+          axs.plot(day_ax, output[i], label = '{} degrees'.format(latitude[i]))
+        
+        plt.xlabel('Time (days)')
+        plt.ylabel('TOA Insolation (W/m²)')
+        plt.legend()
+        plt.savefig('orbkit_testplot.png')
+      
+      else:
+        
+        if isinstance(latitude, tuple):
+          lat_ax = np.linspace(latitude[0], latitude[1], len(output))
+        else:
+          lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
+        
+        contour_1 = plt.contourf(day_ax,lat_ax,output,np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
+        plt.xlabel('Time (days)')
+        plt.ylabel('Latitude (degrees)')
+        plt.colorbar(contour_1, label = 'Insolation (W/m²)')
+
+        plt.savefig('orbkit_testplot.png')
+
+    elif np.array(output).ndim == 1:
+
+      day_ax = np.linspace(0,365,len(output))
+
+      fig, axs = plt.subplots()
+    
+      if output_type == 'array':
+        axs.plot(day_ax,output, label = '{} degrees'.format(latitude[0]))
+        plt.xlabel('Time (Days)')
+        plt.ylabel('TOA Insolation (W/m²)')
+        plt.legend()
+        plt.savefig('orbkit_testplot.png')
+      elif output_type == 'latitude mean':
+        axs.plot(day_ax,output, label = 'average')
+        plt.xlabel('Time (Days)')
+        plt.ylabel('TOA Insolation (W/m²)')
+        plt.legend()
+        plt.savefig('orbkit_testplot.png')
+      elif output_type == 'time mean':
+        if isinstance(latitude, list):
+          latitude = [str(i) for i in latitude]
+          axs.bar(latitude,output)
+          plt.xlabel('Latitude (degrees)')
+          plt.ylabel('TOA Insolation (W/m²)')
+          plt.savefig('orbkit_testplot.png')
+        elif isinstance(latitude, tuple):
+          lat_ax = np.linspace(latitude[0], latitude[1], len(output))
+          axs.plot(lat_ax,output, label = 'time average')
+          plt.xlabel('Latitude (degrees)')
+          plt.ylabel('TOA Insolation (W/m²)')
+          plt.legend()
+          plt.savefig('orbkit_testplot.png')
+        else:
+          lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x'])) 
+          axs.plot(lat_ax,output, label = 'time average')
+          plt.xlabel('Latitude (degrees)')
+          plt.ylabel('TOA Insolation (W/m²)')
+          plt.legend()
+          plt.savefig('orbkit_testplot.png')
+
+    elif np.array(output).ndim == 0:
+
+      raise ValueError('Cannot plot 0-dimentional value')
+  
+  return output
 
 def global_mean_insolation(kyear = None):
 
