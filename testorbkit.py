@@ -50,12 +50,13 @@ import orbkit as ok
 
 # plt.savefig('orbkit_testplot.png')
 
-
+#(0.001,25,300)
 # inso_m = ok.insolation(kyear = (0,0,0), latitude = [1,65], output_type = 'latitude mean')
 # inso = ok.insolation(kyear = (0,0,0), latitude = [1,65])#, output_type = 'latitude mean')
 
-inso_tuple_1 = ok.insolation(kyear = 1, output_type = 'array')
-inso_tuple_1_m = ok.insolation(kyear = 1, output_type = 'latitude mean')
+inso_tuple_1 = ok.insolation(kyear = None, latitude = [1,5,7], output_type = 'array')
+inso_tuple_1_lm = ok.insolation(kyear = None,  latitude = [1,5,7], output_type = 'latitude mean')
+inso_tuple_1_tm = ok.insolation(kyear = None, latitude = [1,5,7], output_type = 'time mean')
 
 breakpoint()
 
