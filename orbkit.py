@@ -454,7 +454,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       fig, axs = plt.subplots()
     
       if output_type == 'array':
-        axs.plot(day_ax,output, label = '{} degrees'.format(latitude[0]))
+        if isinstance(latitude, list):
+          axs.plot(day_ax,output, label = '{} degrees'.format(latitude[0]))
+        else:
+          axs.plot(day_ax,output, label = '{} degrees'.format(latitude))
         plt.xlabel('Time (Days)')
         plt.ylabel('TOA Insolation (W/m²)')
         plt.legend()
@@ -493,38 +496,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
   
   return output
 
-def global_mean_insolation(kyear = None):
-
-  if kyear == None:
-
-    return np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
-
-  if isinstance(kyear, int):
-
-    return np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
-
-  elif len(kyear) == 2:
-
-    index = abs(kyear[0]-kyear[1]) + 1
-    kyear_range = np.linspace(kyear[0], kyear[1], index, dtype = int)
-    GMI = []
-    for i in kyear_range:
-      GMI_at_kyear = np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
-      GMI.append(GMI_at_kyear)
-
-    return GMI
-
-  elif len(kyear) > 2:
-
-    GMI = []
-
-    for i in kyear:
-
-      GMI_at_kyear = np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T)
-      GMI.append(GMI_at_kyear)
-
-    return GMI
-
 def GMT(kyear = None):
 
   if kyear == None:
@@ -543,50 +514,75 @@ def GMT(kyear = None):
     GMT = np.mean(surface_temperature)
     return GMT
 
-def climate(kyear = None, moist = None, seas = None):
+def climate(kyear = None, latitude = None, moist = None, seas = None):
 
-  if kyear == None:
+  if latitude == None:
 
-    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 1, hide_run = 'On')
-    surface_temperature = output[2]
-    meridional_temperature_gradient = output[11]
-    meridional_energy_transport = output[10]
-    outgoing_longwave_radiation = output[16]
-    absorbed_solar_radiation = output[4]
-    southern_hemisphere_sea_ice_edge = output[14][3]
-    insolation = output[5]
+    if kyear == None:
 
-    return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+      output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 1, hide_run = 'On')
+      surface_temperature = output[2]
+      meridional_temperature_gradient = output[11]
+      meridional_energy_transport = output[10]
+      outgoing_longwave_radiation = output[16]
+      absorbed_solar_radiation = output[4]
+      southern_hemisphere_sea_ice_edge = output[14][3]
+      insolation = output[5]
 
-  elif isinstance(kyear, int):
+      return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
 
-    kyear = kyear + 1
+    elif isinstance(kyear, int):
+
+      kyear = kyear + 1
+      
+      output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = kyear, hide_run = 'On')
+      surface_temperature = output[2]
+      meridional_temperature_gradient = output[11]
+      meridional_energy_transport = output[10]
+      outgoing_longwave_radiation = output[16]
+      absorbed_solar_radiation = output[4]
+      southern_hemisphere_sea_ice_edge = output[14][3]
+      insolation = output[5]
+
+      return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+
+    elif len(kyear) == 3:
+
+      eccentricity, obliquity, long_peri = kyear
+  
+      output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 'forced', obl = obliquity, long = long_peri, ecc = eccentricity, hide_run = 'On')
+      surface_temperature = output[2]
+      meridional_temperature_gradient = output[11]
+      meridional_energy_transport = output[10]
+      outgoing_longwave_radiation = output[16]
+      absorbed_solar_radiation = output[4]
+      southern_hemisphere_sea_ice_edge = output[14][3]
+      insolation = output[5]
+
+      return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+
+  elif latitude != None:
     
-    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = kyear, hide_run = 'On')
-    surface_temperature = output[2]
-    meridional_temperature_gradient = output[11]
-    meridional_energy_transport = output[10]
-    outgoing_longwave_radiation = output[16]
-    absorbed_solar_radiation = output[4]
-    southern_hemisphere_sea_ice_edge = output[14][3]
-    insolation = output[5]
+    if np.max(np.abs(latitude)) > 90:
 
-    return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+      raise ValueError('latitude value is out of degree range (-90,90)')
 
-  elif len(kyear) == 3:
+    elif isinstance(latitude, int):
 
-    eccentricity, obliquity, long_peri = kyear
- 
-    output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 'forced', obl = obliquity, long = long_peri, ecc = eccentricity, hide_run = 'On')
-    surface_temperature = output[2]
-    meridional_temperature_gradient = output[11]
-    meridional_energy_transport = output[10]
-    outgoing_longwave_radiation = output[16]
-    absorbed_solar_radiation = output[4]
-    southern_hemisphere_sea_ice_edge = output[14][3]
-    insolation = output[5]
+      if kyear == None:
 
-    return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+        output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 1, hide_run = 'On')
+        surface_temperature = output[2]
+        meridional_temperature_gradient = output[11]
+        meridional_energy_transport = output[10]
+        outgoing_longwave_radiation = output[16]
+        absorbed_solar_radiation = output[4]
+        southern_hemisphere_sea_ice_edge = output[14][3]
+        insolation = output[5]
+
+        return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
+
+
 
 #---------------------------------------------------------------#
 
