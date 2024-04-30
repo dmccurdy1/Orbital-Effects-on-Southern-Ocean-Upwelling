@@ -38,10 +38,12 @@ from scipy import integrate
 import mixedlayer
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
-from climlab.solar.orbital.long import OrbitalTable as OrbitalTable #The Laskar 2004 orbital data table 2Mya-present
+#from climlab.solar.orbital.long import OrbitalTable as OrbitalTable #The Laskar 2004 orbital data table 2Mya-present
+OrbitalTable = xr.open_dataset('Laskar04_OrbitalTable.nc')
 from tabulate import tabulate
 import pickle
 from scipy.signal import argrelextrema
+
 
 start_time = time.time()
 
@@ -571,7 +573,7 @@ def climate(kyear = None, latitude = None, moist = None, seas = None):
 
       if kyear == None:
 
-        output = Model_Class().model(S_type = 1, grid = experiment(1).config, T = experiment().Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 1, hide_run = 'On')
+        output = Model_Class().model(S_type = 1, grid = experiment(0).config, T = experiment(0).Ti, CO2_ppm = None, D = None, F = 0, moist = 1, albT = 1, seas = 1, thermo = 0, kyear = 1, hide_run = 'On')
         surface_temperature = output[2]
         meridional_temperature_gradient = output[11]
         meridional_energy_transport = output[10]
@@ -579,6 +581,8 @@ def climate(kyear = None, latitude = None, moist = None, seas = None):
         absorbed_solar_radiation = output[4]
         southern_hemisphere_sea_ice_edge = output[14][3]
         insolation = output[5]
+
+        breakpoint()
 
         return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
 
@@ -2319,7 +2323,6 @@ class Helper_Functions(): # miscellaneous methods for analysis on EBM output
     ## Units of CESM are wind[m/s] and T grad[C/lat] ##
 
     zonal_wind = m_interp * T_grad + b_interp
-
     zonal_wind = zonal_wind.T
 
     return zonal_wind
@@ -2634,17 +2637,20 @@ class Model_Class(): # MEBM from (Feldl & Merlis, 2021) with added orbital insol
     T_grad = Helper_Functions().take_gradient(grid,Tfin.T, diffx = 'deg') # C /deg
 
     # geostrophic wind
-    geo_wind =  Helper_Functions().calculate_zonal_wind(T_grad)
-    max_geo_wind, min_geo_wind, mean_geo_wind, wind_lines = Helper_Functions().find_lat_of_value(grid, geo_wind, lat, 'maximum')
+    #geo_wind =  Helper_Functions().calculate_zonal_wind(T_grad)
+    #max_geo_wind, min_geo_wind, mean_geo_wind, wind_lines = Helper_Functions().find_lat_of_value(grid, geo_wind, lat, 'maximum')
 
     # coriolis parameter
     f = 2*omega*sin(np.arcsin(x))
     f = np.tile(f, (nt,1))
 
     # WSC
-    wind_stress = (geo_wind ** 2) * roh * drag_coeff
+    #wind_stress = (geo_wind ** 2) * roh * drag_coeff
 
-    wind_stress_curl = Helper_Functions().take_gradient(grid,wind_stress.T) # m / s deg
+    #wind_stress_curl = Helper_Functions().take_gradient(grid,wind_stress.T) # m / s deg
+
+    wind_stress_curl = Efin
+    geo_wind = Efin
 
     mean_S = np.mean(S, axis=(0,1))
     OLR = A - B*Tfin
