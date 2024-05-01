@@ -58,9 +58,11 @@ import orbkit as ok
 # inso_tuple_1_lm = ok.insolation(kyear = None,  latitude = [1,5,7], output_type = 'latitude mean')
 #inso_tuple_1_tm = ok.insolation(kyear = None, latitude = [10], output_type = 'time mean')
 
-ploting = ok.insolation(kyear= 2000, latitude = None, output_type = 'array', show_plot= 'On')
+#ploting = ok.insolation(kyear= 2000, latitude = None, output_type = 'array', show_plot= 'On')
 
 #clim_state = ok.climate(latitude = 1)
+
+inso = ok.insolation(kyear = (99,0), latitude = (0,90), output_type='global annual mean')
 
 
 breakpoint()
