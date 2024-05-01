@@ -340,10 +340,12 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       
       
   elif latitude != None:
-
     if np.max(np.abs(latitude)) > 90:
       raise ValueError('latitude value is out of degree range (-90,90)')
-  
+    
+    elif isinstance(latitude, list) and len(latitude) == 1:
+      raise TypeError('for a single latitude value please use type int or tuple')
+
     elif isinstance(latitude, int):
       if isinstance(kyear, float):
         raise ValueError('Invalid kyear value, please try int, tuple, or list')
@@ -376,8 +378,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude).T)) for i in kyear_range]
           output = np.array(kyrs_inso)
-        
-      
+            
     elif isinstance(latitude, tuple):
       if len(latitude) == 2 or len(latitude) == 1:
         if isinstance(kyear, float):
@@ -404,7 +405,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T, axis = 0)
           elif output_type == 'time mean':
             output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T, axis = 1)
-      
         elif isinstance(kyear, tuple) and len(kyear) == 2:
 
           if output_type == 'array':
@@ -430,64 +430,65 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
             kyrs_inso = []
             [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude).T)) for i in kyear_range]
-            output = np.array(kyrs_inso)
-      
+            output = np.array(kyrs_inso)    
       else:
         raise TypeError('invalid latitude tuple input, please use tuple of length 1 or 2')
     
     elif isinstance(latitude, list):
-      if len(latitude) == 1:
-        if isinstance(kyear, float):
-          raise ValueError('Invalid kyear value, please try int, tuple, or list')
-        elif kyear == None:
-          if output_type == 'array' or output_type == 'latitude mean':
-            output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T
-          elif output_type == 'time mean':
-            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T)
-        elif isinstance(kyear, int):
-          if output_type == 'array' or output_type == 'latitude mean':
-            output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T
-          elif output_type == 'time mean':
-            output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude[0]).T)
-        elif isinstance(kyear, tuple) and len(kyear) == 3:
-          eccentricity, obliquity, long_peri = kyear
-          if output_type == 'array' or output_type == 'latitude mean':
-            output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude[0]).T
-          elif output_type == 'time mean':
-            output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude[0]).T)
-      
-      else:
-        if isinstance(kyear, float):
-          raise ValueError('Invalid kyear value, please try int, tuple, or list')
-        elif kyear == None:
-          array_at_lats = []
-          [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
+    
+      if isinstance(kyear, float):
+        raise ValueError('Invalid kyear value, please try int, tuple, or list')
+      elif kyear == None:
+        array_at_lats = []
+        [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
+        if output_type == 'array':
+          output = array_at_lats
+        elif output_type == 'latitude mean':
+          output = np.mean(array_at_lats, axis = 0)
+        elif output_type == 'time mean':
+          output = np.mean(array_at_lats, axis = 1)
+      elif isinstance(kyear, int):
+        array_at_lats = []
+        [array_at_lats.append(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
+        if output_type == 'array':
+          output = array_at_lats
+        elif output_type == 'latitude mean':
+          output = np.mean(array_at_lats, axis = 0)
+        elif output_type == 'time mean':
+          output = np.mean(array_at_lats, axis = 1)
+      elif isinstance(kyear, tuple) and len(kyear) == 3:
+        eccentricity, obliquity, long_peri = kyear
+        array_at_lats = []
+        [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=i).T) for i in latitude]
+        if output_type == 'array':
+          output = array_at_lats
+        elif output_type == 'latitude mean':
+          output = np.mean(array_at_lats, axis = 0)
+        elif output_type == 'time mean':
+          output = np.mean(array_at_lats, axis = 1)
+      elif isinstance(kyear, tuple) and len(kyear) == 2:
+          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
+          kyrs_inso = []
+          for i in kyear_range:
+            array_at_lats = []  
+            for f in latitude:
+              signle_lat_val = Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = f).T
+              array_at_lats.append(signle_lat_val)
+            kyrs_inso.append(array_at_lats)
+          output = np.array(kyrs_inso)
           if output_type == 'array':
-            output = array_at_lats
+            pass
           elif output_type == 'latitude mean':
-            output = np.mean(array_at_lats, axis = 0)
+            output = np.mean(output, axis =1)
           elif output_type == 'time mean':
-            output = np.mean(array_at_lats, axis = 1)
-        elif isinstance(kyear, int):
-          array_at_lats = []
-          [array_at_lats.append(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i).T) for i in latitude]
-          if output_type == 'array':
-            output = array_at_lats
-          elif output_type == 'latitude mean':
-            output = np.mean(array_at_lats, axis = 0)
-          elif output_type == 'time mean':
-            output = np.mean(array_at_lats, axis = 1)
-        elif isinstance(kyear, tuple) and len(kyear) == 3:
-          eccentricity, obliquity, long_peri = kyear
-          array_at_lats = []
-          [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=i).T) for i in latitude]
-          if output_type == 'array':
-            output = array_at_lats
-          elif output_type == 'latitude mean':
-            output = np.mean(array_at_lats, axis = 0)
-          elif output_type == 'time mean':
-            output = np.mean(array_at_lats, axis = 1)
-  
+            output = np.mean(output, axis =2)
+          elif output_type == 'global annual mean':
+            output = np.mean(output, axis =(1,2))
+
+            
+
+
     else:
   
       raise ValueError('invalid latitude input, please use type int, tuple or list')
