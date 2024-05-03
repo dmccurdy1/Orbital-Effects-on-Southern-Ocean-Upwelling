@@ -283,7 +283,7 @@ def precession(kyear = None):
 
     return output
 
-def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = 'Off'):
+def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = 'Off', season = None):
 
   if latitude == None:
     if isinstance(kyear, float):
@@ -335,9 +335,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           kyrs_inso = []
           [kyrs_inso.append(float(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer').T))) for i in kyear_range]
           output = np.array(kyrs_inso)
-        
-
-      
       
   elif latitude != None:
     if np.max(np.abs(latitude)) > 90:
@@ -486,9 +483,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           elif output_type == 'global annual mean':
             output = np.mean(output, axis =(1,2))
 
-            
-
-
     else:
   
       raise ValueError('invalid latitude input, please use type int, tuple or list')
@@ -497,8 +491,38 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
     raise ValueError('invalid latitude input, please use type int, tuple or list')
   
   if show_plot == 'On':
-    
-    if np.array(output).ndim == 2:
+
+    if np.array(output).ndim == 3:
+
+      if output_type == 'array':
+
+        reshaped_output = []
+        
+        for i in range(np.shape(output)[1]):
+
+          row = []
+          
+          for f in range(np.shape(output)[0]):
+
+            row.append(output[f,i,:])
+
+          row = np.hstack(row)
+
+          reshaped_output.append(row)
+      
+        time_ax = np.linspace(0,len(output),np.shape(reshaped_output)[1])
+        if isinstance(latitude, tuple):
+          lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[1])
+        else:
+          lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
+
+        contour_1 = plt.contourf(time_ax,lat_ax,reshaped_output,np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
+        plt.xlabel('Time (days)')
+        plt.ylabel('Latitude (degrees)')
+        plt.colorbar(contour_1, label = 'Insolation (W/m²)')
+        plt.savefig('orbkit_testplot.png')
+
+    elif np.array(output).ndim == 2:
 
       day_ax = np.linspace(0,365,len(output[1]))
   
