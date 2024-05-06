@@ -472,32 +472,80 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif kyear == None:
         if output_type == 'array' or output_type == 'latitude mean':
           output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+          if show_plot == 'On':
+            day_ax = np.linspace(0,365,len(output))
+            fig, axs = plt.subplots()
+            axs.plot(day_ax,output, label = '{} degree'.format(latitude))
+            plt.xlabel('Time (Days)')
+            plt.ylabel('TOA Insolation (W/m²)')
+            axs.legend()
+            plt.savefig('orbkit_testplot.png')
         elif output_type == 'time mean':
           output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T)
+          if show_plot == 'On':
+            raise ValueError('Cannot plot 0-dimentional value')
       elif isinstance(kyear, int):       
         if output_type == 'array' or output_type == 'latitude mean':
           output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T
+          if show_plot == 'On':
+            day_ax = np.linspace(0,365,len(output))
+            fig, axs = plt.subplots()
+            axs.plot(day_ax,output, label = '{} degree'.format(latitude))
+            plt.xlabel('Time (Days)')
+            plt.ylabel('TOA Insolation (W/m²)')
+            axs.legend()
+            plt.savefig('orbkit_testplot.png')
         elif output_type == 'time mean':
           output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T)
+          if show_plot == 'On':
+            raise ValueError('Cannot plot 0-dimentional value')
       elif isinstance(kyear, tuple) and len(kyear) == 3:
         eccentricity, obliquity, long_peri = kyear
         if output_type == 'array' or output_type == 'latitude mean':
           output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T
+          if show_plot == 'On':
+            day_ax = np.linspace(0,365,len(output))
+            fig, axs = plt.subplots()
+            axs.plot(day_ax,output, label = '{} degree'.format(latitude))
+            plt.xlabel('Time (Days)')
+            plt.ylabel('TOA Insolation (W/m²)')
+            axs.legend()
+            plt.savefig('orbkit_testplot.png')
         elif output_type == 'time mean':
           output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude).T)
+          if show_plot == 'On':
+            raise ValueError('Cannot plot 0-dimentional value')
       elif isinstance(kyear, tuple) and len(kyear) == 2:
         if output_type == 'array' or output_type == 'latitude mean':
           kyear_step = abs(kyear[1] - kyear[0])
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
-          [kyrs_inso.append(float(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T))) for i in kyear_range]
+          [kyrs_inso.append(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude).T) for i in kyear_range]
           output = np.array(kyrs_inso)
+          if show_plot == 'On':
+            insolation_v_time = np.hstack(output)
+            if kyear[0] == kyear[1]:
+              raise ValueError('cannot have kyear range be 0')
+            else:
+              time_ax = np.linspace(kyear[0],kyear[1],len(insolation_v_time))
+              plt.plot(time_ax,insolation_v_time, label = '{} degree'.format(latitude))
+              plt.xlabel('Time (kyears)')
+              plt.ylabel('TOA Insolation (W/m²)')
+              plt.legend()
+              plt.savefig('orbkit_testplot.png')
         elif output_type == 'time mean' or output_type == 'global annual mean':
           kyear_step = abs(kyear[1] - kyear[0])
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude).T)) for i in kyear_range]
           output = np.array(kyrs_inso)
+          if show_plot == 'On':
+            time_ax = np.linspace(kyear[0],kyear[1],len(output))
+            plt.plot(time_ax,output, label = '{} degree'.format(latitude))
+            plt.xlabel('Time (kyears)')
+            plt.ylabel('TOA Insolation (W/m²)')
+            plt.legend()
+            plt.savefig('orbkit_testplot.png')
             
     elif isinstance(latitude, tuple):
       if len(latitude) == 2 or len(latitude) == 1:
