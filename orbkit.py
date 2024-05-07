@@ -38,13 +38,19 @@ from scipy import integrate
 import mixedlayer
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
+from scipy.io import netcdf_file
 #from climlab.solar.orbital.long import OrbitalTable as OrbitalTable #The Laskar 2004 orbital data table 2Mya-present
-OrbitalTable = xr.open_dataset('Laskar04_OrbitalTable.nc')
+#OrbitalTable = xr.open_dataset('Laskar04_OrbitalTable.nc')
+#OrbitalTable = OrbitalTable.to_netcdf('Laskar04_OrbitalTable_NC3.nc', engine = "scipy")
+
 from tabulate import tabulate
 import pickle
 from scipy.signal import argrelextrema
 
 
+#OrbitalTable = pd.DataFrame({'kyear': OrbitalTable['kyear'],'ecc': OrbitalTable['ecc'],'long_peri': OrbitalTable['long_peri'],'obliquity': OrbitalTable['obliquity'],'precession': OrbitalTable['precession']})
+OrbitalTable = pd.read_csv('Laskar04_OrbitalTable.csv')
+breakpoint()
 start_time = time.time()
 
 mpl.rcParams['axes.titlesize'] = 10 # reset global fig properties
@@ -390,7 +396,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.ylabel('TOA Insolation (W/m²)')
           axs.legend()
           plt.savefig('orbkit_testplot.png')
-      elif output_type == 'time mean':
+      elif output_type == 'time mean' or output_type == 'global annual mean':
         output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', days = day_vals).T, axis = 1)
         if show_plot == 'On':
           lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x'])) 

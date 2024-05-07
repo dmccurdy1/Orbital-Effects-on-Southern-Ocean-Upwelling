@@ -2,5 +2,12 @@
 *.jpg
 *.pyc
 *.pdf
-*.csv
+*forcing_decomp_table.csv
+*surface_temperature_gradients.csv
+*surface_zonal_wind_velocity.csv
+*table_1.csv
+*table_2.csv
+*table_sensitivity.csv
 *.png
+*.pyc
+*.txt
