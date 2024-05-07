@@ -39,20 +39,14 @@ import mixedlayer
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
 from scipy.io import netcdf_file
-#from climlab.solar.orbital.long import OrbitalTable as OrbitalTable #The Laskar 2004 orbital data table 2Mya-present
-#OrbitalTable = xr.open_dataset('Laskar04_OrbitalTable.nc')
-#OrbitalTable = OrbitalTable.to_netcdf('Laskar04_OrbitalTable_NC3.nc', engine = "scipy")
-
 from tabulate import tabulate
 import pickle
 from scipy.signal import argrelextrema
 
 
-#OrbitalTable = pd.DataFrame({'kyear': OrbitalTable['kyear'],'ecc': OrbitalTable['ecc'],'long_peri': OrbitalTable['long_peri'],'obliquity': OrbitalTable['obliquity'],'precession': OrbitalTable['precession']})
-OrbitalTable = pd.read_csv('Laskar04_OrbitalTable.csv')
-breakpoint()
-start_time = time.time()
 
+start_time = time.time()
+OrbitalTable = pd.read_csv('Laskar04_OrbitalTable.csv')
 mpl.rcParams['axes.titlesize'] = 10 # reset global fig properties
 mpl.rcParams['legend.fontsize'] = 6 # reset global fig properties
 mpl.rcParams['legend.title_fontsize'] = 6 # reset global fig properties
@@ -289,11 +283,18 @@ def precession(kyear = None):
 
     return output
 
-def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = 'Off', season = None):
+def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = 'Off', season = None, days = None):
 
   if season == None:
-    day_vals = None
-    day_ax = np.linspace(0,365,365)
+    if days == None:
+      day_vals = None
+      day_ax = np.linspace(0,365,365)
+    elif days != None:
+      if isinstance(days, tuple) and len(days) == 2 and days[0] != days[1]:
+        day_vals = np.linspace(days[0],days[1], abs(days[0]-days[1])+1)
+        day_ax = day_vals
+      else:
+        raise ValueError('day input needs to be type tuple with length 2 and elements cannot be equal')
   elif season == 'DJF':
     days_end_of_year = np.linspace(experiment().month['December'], 365, abs(experiment().month['December']-365)+1)
     days_start_of_year = np.linspace(experiment().month['January'],experiment().month['March'], abs(experiment().month['January']-experiment().month['March'])+1)
