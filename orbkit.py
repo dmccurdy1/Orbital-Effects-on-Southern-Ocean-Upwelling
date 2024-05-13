@@ -707,7 +707,12 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.xlabel('Time (kyears)')
             plt.ylabel('TOA Insolation (W/m²)')
             plt.legend()
-            plt.savefig('orbkit_testplot.png')          
+            plt.savefig('orbkit_testplot.png')       
+
+      elif isinstance(kyear,list) and len(kyear) >= 2:
+
+        pass
+
     elif isinstance(latitude, tuple):
       if len(latitude) == 2 or len(latitude) == 1:
         if isinstance(kyear, float):
