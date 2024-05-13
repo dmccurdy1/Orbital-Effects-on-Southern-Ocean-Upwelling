@@ -66,11 +66,10 @@ import orbkit as ok
 # inso = ok.insolation(kyear = (10,0), latitude = None, season = None, days = None, show_plot = 'On', output_type= 'array')
 
 
-inso = ok.insolation(kyear = [6000,1000,0], show_plot= 'On', output_type='global annual mean')
+#inso = ok.insolation(kyear = [6000,1000,0], show_plot= 'On', output_type='global annual mean')
 
 
 #gmi = ok.insolation(kyear = (6000,0), output_type='global annual mean')
 
-breakpoint()
 
 
