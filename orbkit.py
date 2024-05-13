@@ -488,20 +488,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
         output = np.array(array_at_kyears)
         if show_plot == 'On':
           lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
-          least_square = len(kyear)
-          for i in range(-least_square,0):
-            if (np.sqrt(abs(i))).is_integer():
-              least_square = np.abs(i)
-              plot_rows = int(np.sqrt(least_square))
-              plot_cols = int(np.sqrt(least_square))
-              if least_square == len(kyear):
-                break
-              else:
-                while plot_rows*plot_cols < len(kyear):
-                  plot_cols = plot_cols + 1
-                break
+          plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
                        
           fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+          
           count = 0
           if np.ndim(axs) == 2:
             for i in range(plot_rows):
@@ -539,15 +529,102 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           # fig.colorbar(im, ax=axs, orientation='vertical', fraction=1)
           #breakpoint()
           
-          xwplt.tight_layout()
-          plt.savefig('orbkit_testplot.png')
-                        
+          plt.tight_layout()
+          plt.savefig('orbkit_testplot.png')                      
       elif output_type == 'latitude mean':
         output = np.mean(array_at_kyears, axis = 1)
+        if show_plot == 'On':
+
+          lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
+          plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                       
+          fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+          
+          count = 0
+          if np.ndim(axs) == 2:
+            for i in range(plot_rows):
+              for f in range(plot_cols):
+                if count <= len(kyear)-1:
+                  axs[i,f].plot(day_ax,output[count])
+                  axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                  axs[i,f].set_xlabel('Time (days)')
+                  axs[i,f].set_ylabel('Insolation (W/m²)')
+                  count += 1
+                else:
+                  axs[i,f].remove()
+          elif np.ndim(axs) == 1:
+            for i in range(plot_rows):
+              for f in range(plot_cols):
+                if count <= len(kyear)-1:
+                  axs[f].plot(day_ax,output[count])
+                  axs[f].set_title('kyear {}'.format(kyear[count]))
+                  axs[f].set_xlabel('Time (days)')
+                  axs[f].set_ylabel('Insolation (W/m²)')
+                  count += 1
+                else:
+                  axs[f].remove()
+          plt.tight_layout()
+          plt.savefig('orbkit_testplot.png')
       elif output_type == 'time mean':
         output = np.mean(array_at_kyears, axis = 2)
+        if show_plot == 'On':
+
+          lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
+          plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                       
+          fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+          
+          count = 0
+          if np.ndim(axs) == 2:
+            for i in range(plot_rows):
+              for f in range(plot_cols):
+                if count <= len(kyear)-1:
+                  axs[i,f].plot(lat_ax,output[count])
+                  axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                  axs[i,f].set_xlabel('Latitude (degrees)')
+                  axs[i,f].set_ylabel('Insolation (W/m²)')
+                  count += 1
+                else:
+                  axs[i,f].remove()
+          elif np.ndim(axs) == 1:
+            for i in range(plot_rows):
+              for f in range(plot_cols):
+                if count <= len(kyear)-1:
+                  axs[f].plot(lat_ax,output[count])
+                  axs[f].set_title('kyear {}'.format(kyear[count]))
+                  axs[f].set_xlabel('Latitude (degrees)')
+                  axs[f].set_ylabel('Insolation (W/m²)')
+                  count += 1
+                else:
+                  axs[f].remove()
+          plt.tight_layout()
+          plt.savefig('orbkit_testplot.png')
       elif output_type == 'kyear mean':
         output = np.mean(array_at_kyears, axis = 0)
+        if show_plot == 'On':
+          
+          lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
+          fig, axs = plt.subplots()
+          im = axs.contourf(day_ax,lat_ax,output,np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
+          axs.set_title('Mean Insolation for Kyears {}'.format(kyear))
+          axs.set_xlabel('Time (kyears)')
+          axs.set_ylabel('Latitude (degrees)')
+          plt.colorbar(im, label = 'Insolation (W/m²)')
+
+          plt.tight_layout()
+          plt.savefig('orbkit_testplot.png')
+      elif output_type == 'global annual mean':
+        output = np.mean(array_at_kyears, axis = (1,2))
+        if show_plot == 'On':
+          kyear_ax = []
+          [kyear_ax.append(str(i)) for i in kyear]
+          plt.bar(kyear_ax,output)
+          plt.ylim(np.min(output)-0.5,np.max(output)+0.5)
+          plt.xlabel('kyear')
+          plt.ylabel('Global Annual Mean Insolation (W/m²)')
+          plt.tight_layout()
+          plt.savefig('orbkit_testplot.png')
+
 
   elif latitude != None:
     if np.max(np.abs(latitude)) > 90:
@@ -2206,6 +2283,23 @@ class Helper_Functions(): # miscellaneous methods for analysis on EBM output
   def __init__(self, output = None):
     
     self.output = output
+
+  def find_plot_dims(kyear):
+
+    least_square = len(kyear)
+    for i in range(-least_square,0):
+      if (np.sqrt(abs(i))).is_integer():
+        least_square = np.abs(i)
+        plot_rows = int(np.sqrt(least_square))
+        plot_cols = int(np.sqrt(least_square))
+        if least_square == len(kyear):
+          break
+        else:
+          while plot_rows*plot_cols < len(kyear):
+            plot_cols = plot_cols + 1
+          break
+    
+    return plot_rows, plot_cols
 
   def area_array(self, grid, r = 6378100): # calculates the area of a zonal band on earth
 
