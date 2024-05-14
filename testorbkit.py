@@ -73,3 +73,23 @@ inso_05 = ok.insolation(kyear = 0.5, show_plot= 'On')
 
 
 
+def MathissTests():
+    myok = ok.insolation()
+    print(type(myok))
+    print(myok.size,myok.shape)
+    
+    # method returns modern insolation by default, xarray directly drives plt contour
+    #plt.contour(myok)
+    #plt.show()
+    
+    # built-in plot
+    myok2 = ok.insolation(show_plot = 'On',kyear=[21,0])#, latitude=66)
+    print(myok2.size,myok2.shape)
+    
+if __name__=="__main__":
+    MathissTests()
+    print("Mathis is done testing")
+    
+    
+    
+    
