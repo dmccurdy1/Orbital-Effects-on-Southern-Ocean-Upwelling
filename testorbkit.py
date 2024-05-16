@@ -67,8 +67,7 @@ import orbkit as ok
 
 
 #inso = ok.insolation(kyear = [1,2,3,4,5], latitude = [1,2,3,4,5,6,7,8,9,10], show_plot= 'On', output_type='kyear mean')
-inso = ok.insolation()
-breakpoint()
+
 #gmi = ok.insolation(kyear = (6000,0), output_type='global annual mean')
 
 
@@ -91,5 +90,7 @@ breakpoint()
 #     print("Mathis is done testing")
 # ######### MATHIS TESTS #############
     
+
+
     
     
