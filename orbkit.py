@@ -613,7 +613,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           fig, axs = plt.subplots()
           im = axs.contourf(day_ax,lat_ax,output,np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
           axs.set_title('Mean Insolation for Kyears {}'.format(kyear))
-          axs.set_xlabel('Time (kyears)')
+          axs.set_xlabel('Time (days)')
           axs.set_ylabel('Latitude (degrees)')
           plt.colorbar(im, label = 'Insolation (W/m²)')
 
@@ -637,10 +637,9 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       raise ValueError('latitude value is out of degree range (-90,90)')  
     elif isinstance(latitude, list) and len(latitude) == 1:
       raise TypeError('for a single latitude value please use type int or tuple')
-    elif isinstance(latitude, int):
-      if isinstance(kyear, float):
-        raise ValueError('Invalid kyear value, please try int, tuple, or list')
-      elif kyear == None:
+    elif isinstance(latitude, int) or isinstance(latitude, float):
+     
+      if kyear == None:
         if output_type == 'array' or output_type == 'latitude mean':
           output = Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T
           if show_plot == 'On':
@@ -654,7 +653,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T)
           if show_plot == 'On':
             raise ValueError('Cannot plot 0-dimentional value')
-      elif isinstance(kyear, int):       
+      elif isinstance(kyear, int) or isinstance(kyear, float):       
         if output_type == 'array' or output_type == 'latitude mean':
           output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T
           if show_plot == 'On':
@@ -714,11 +713,68 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.ylabel('TOA Insolation (W/m²)')
             plt.legend()
             plt.savefig('orbkit_testplot.png')       
-
       elif isinstance(kyear,list) and len(kyear) >= 2:
+        array_at_kyears = []
+        [array_at_kyears.append(Orbital_Insolation(i+1,i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat',lat = latitude,days = day_vals).T) for i in kyear]
+        if output_type == 'array' or output_type == 'latitude mean':
+          output = np.array(array_at_kyears)
+          if show_plot == 'On':
 
-        pass
-
+            lat_ax = np.rad2deg(np.arcsin(experiment(3).config['x']))
+            plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                        
+            fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+            
+            count = 0
+            if np.ndim(axs) == 2:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    axs[i,f].plot(day_ax,output[count], label = '{} degrees'.format(latitude))
+                    axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                    axs[i,f].set_xlabel('Time (days)')
+                    axs[i,f].set_ylabel('Insolation (W/m²)')
+                    axs[i,f].legend(loc = 'upper right')
+                    count += 1
+                  else:
+                    axs[i,f].remove()
+            elif np.ndim(axs) == 1:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    axs[f].plot(day_ax,output[count], label = '{} degrees'.format(latitude))
+                    axs[f].set_title('kyear {}'.format(kyear[count]))
+                    axs[f].set_xlabel('Time (days)')
+                    axs[f].set_ylabel('Insolation (W/m²)')
+                    axs[i,f].legend()
+                    count += 1
+                  else:
+                    axs[f].remove()
+            
+            plt.tight_layout()
+            plt.savefig('orbkit_testplot.png')   
+        elif output_type == 'time mean':
+          output = np.mean(np.array(array_at_kyears), axis =1)
+          if show_plot == 'On':
+            kyear_ax = []
+            [kyear_ax.append(str(i)) for i in kyear]
+            plt.bar(kyear_ax,output)
+            plt.ylim(np.min(output)-0.5,np.max(output)+0.5)
+            plt.xlabel('kyear')
+            plt.ylabel('Annual Mean Insolation (W/m²)')
+            plt.title('Annual Mean Insoaltion at {} degrees'.format(latitude))
+            plt.tight_layout()
+            plt.savefig('orbkit_testplot.png')
+        elif output_type == 'kyear mean':
+          output = np.mean(np.array(array_at_kyears), axis = 0)
+          if show_plot == 'On':
+            fig, axs = plt.subplots()
+            axs.plot(day_ax,output, label = '{} degrees'.format(latitude))
+            plt.xlabel('Time (Days)')
+            plt.ylabel('TOA Insolation (W/m²)')
+            plt.title('Average of {}kyears'.format(kyear))
+            axs.legend()
+            plt.savefig('orbkit_testplot.png')
     elif isinstance(latitude, tuple):
       if len(latitude) == 2 or len(latitude) == 1:
         if isinstance(kyear, float):
@@ -885,13 +941,147 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
               plt.xlabel('Time (kyears)')
               plt.ylabel('TOA Insolation (W/m²)')
               plt.savefig('orbkit_testplot.png') 
+      
+        elif isinstance(kyear,list) and len(kyear) >= 2:
+          array_at_kyears = []
+          [array_at_kyears.append(Orbital_Insolation(i+1,i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat',lat = latitude,days = day_vals).T) for i in kyear]
+          
+          if output_type == 'array':
+            output = np.array(array_at_kyears)
+
+            if show_plot == 'On':
+              lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[1])
+              plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                          
+              fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+              
+              count = 0
+              if np.ndim(axs) == 2:
+                for i in range(plot_rows):
+                  for f in range(plot_cols):
+                    if count <= len(kyear)-1:
+                      im = axs[i,f].contourf(day_ax,lat_ax,output[count],np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
+                      axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                      axs[i,f].set_xlabel('Time (kyears)')
+                      axs[i,f].set_ylabel('Latitude (degrees)')
+                      #plt.colorbar(im, label = 'Insolation (W/m²)')
+                      count += 1
+                    else:
+                      axs[i,f].remove()
+              elif np.ndim(axs) == 1:
+                for i in range(plot_rows):
+                  for f in range(plot_cols):
+                    if count <= len(kyear)-1:
+                      im = axs[f].contourf(day_ax,lat_ax,output[count],np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
+                      axs[f].set_title('kyear {}'.format(kyear[count]))
+                      axs[f].set_xlabel('Time (kyears)')
+                      axs[f].set_ylabel('Latitude (degrees)')
+                      #plt.colorbar(im, label = 'Insolation (W/m²)')
+                      count += 1
+                    else:
+                      axs[f].remove()
+            
+              print('This plot is incomplete and under construction')
+              plt.tight_layout()
+              plt.savefig('orbkit_testplot.png')                      
+
+          elif output_type == 'latitude mean':
+
+            output = np.mean(np.array(array_at_kyears),axis = 1)
+
+            if show_plot == 'On':
+
+              lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[1])
+              plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                          
+              fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+              
+              count = 0
+              if np.ndim(axs) == 2:
+                for i in range(plot_rows):
+                  for f in range(plot_cols):
+                    if count <= len(kyear)-1:
+                      axs[i,f].plot(day_ax,output[count], label = 'latitude mean')
+                      axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                      axs[i,f].set_xlabel('Time (days)')
+                      axs[i,f].set_ylabel('Insolation (W/m²)')
+                      axs[i,f].legend(loc = 'upper right')
+                      count += 1
+                    else:
+                      axs[i,f].remove()
+              elif np.ndim(axs) == 1:
+                for i in range(plot_rows):
+                  for f in range(plot_cols):
+                    if count <= len(kyear)-1:
+                      axs[f].plot(day_ax,output[count], label = 'latitude mean')
+                      axs[f].set_title('kyear {}'.format(kyear[count]))
+                      axs[f].set_xlabel('Time (days)')
+                      axs[f].set_ylabel('Insolation (W/m²)')
+                      axs[f].legend(loc = 'upper right')
+                      count += 1
+                    else:
+                      axs[f].remove()
+              plt.tight_layout()
+              plt.savefig('orbkit_testplot.png')
+      
+          elif output_type == 'time mean':
+
+            output = np.mean(np.array(array_at_kyears), axis = 2)
+
+            if show_plot == 'On':
+
+              lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[1])
+              plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                          
+              fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+              
+              count = 0
+              if np.ndim(axs) == 2:
+                for i in range(plot_rows):
+                  for f in range(plot_cols):
+                    if count <= len(kyear)-1:
+                      axs[i,f].plot(lat_ax,output[count])
+                      axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                      axs[i,f].set_xlabel('Latitude (degrees)')
+                      axs[i,f].set_ylabel('Insolation (W/m²)')
+                      count += 1
+                    else:
+                      axs[i,f].remove()
+              elif np.ndim(axs) == 1:
+                for i in range(plot_rows):
+                  for f in range(plot_cols):
+                    if count <= len(kyear)-1:
+                      axs[f].plot(lat_ax,output[count])
+                      axs[f].set_title('kyear {}'.format(kyear[count]))
+                      axs[f].set_xlabel('Latitude (degrees)')
+                      axs[f].set_ylabel('Insolation (W/m²)')
+                      count += 1
+                    else:
+                      axs[f].remove()
+              plt.tight_layout()
+              plt.savefig('orbkit_testplot.png')
+      
+          elif output_type == 'kyear mean':
+
+            output = np.mean(np.array(array_at_kyears), axis = 0)
+
+            if show_plot == 'On':
+
+              lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[0])
+              fig, axs = plt.subplots()
+              im = axs.contourf(day_ax,lat_ax,output,np.arange(0,int(np.max(output)),10), extend = 'max', cmap=plt.get_cmap('hot'))
+              axs.set_title('Mean Insolation for Kyears {}'.format(kyear))
+              axs.set_xlabel('Time (days)')
+              axs.set_ylabel('Latitude (degrees)')
+              plt.colorbar(im, label = 'Insolation (W/m²)')
+
+              plt.tight_layout()
+              plt.savefig('orbkit_testplot.png')
+
       else:
         raise TypeError('invalid latitude tuple input, please use tuple of length 1 or 2')  
-    elif isinstance(latitude, list):
-    
-      if isinstance(kyear, float):
-        raise ValueError('Invalid kyear value, please try int, tuple, or list')
-      elif kyear == None:
+    elif isinstance(latitude, list):     
+      if kyear == None:
         array_at_lats = []
         [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i, days = day_vals).T) for i in latitude]
         if output_type == 'array':
@@ -921,7 +1111,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.ylabel('TOA Insolation (W/m²)')
             plt.title('kyear {} BP'.format(0))
             plt.savefig('orbkit_testplot.png')
-      elif isinstance(kyear, int):
+      elif isinstance(kyear, int) or isinstance(kyear,float):
         array_at_lats = []
         [array_at_lats.append(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i, days = day_vals).T) for i in latitude]
         if output_type == 'array':
@@ -1036,6 +1226,141 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
               plt.xlabel('Time (kyears)')
               plt.ylabel('TOA Insolation (W/m²)')
               plt.savefig('orbkit_testplot.png') 
+      elif isinstance(kyear,list) and len(kyear) >= 2:
+
+        array_at_kyears = []
+        for i in kyear:
+          array_at_lats = []
+          [array_at_lats.append(Orbital_Insolation(i+1,i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=f, days = day_vals).T) for f in latitude]
+          array_at_kyears.append(array_at_lats)
+
+        if output_type == 'array':
+          output = np.array(array_at_kyears)
+          if show_plot == 'On':
+            plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                        
+            fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+            
+            count = 0
+            if np.ndim(axs) == 2:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    [axs[i,f].plot(day_ax,output[count,k,:], label = '{} degree'.format(latitude[k])) for k in range(len(latitude))]
+                    axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                    axs[i,f].set_xlabel('Time (days)')
+                    axs[i,f].set_ylabel('Insolation (W/m²)')
+                    axs[i,f].legend()
+                    count += 1
+                  else:
+                    axs[i,f].remove()
+            elif np.ndim(axs) == 1:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    [axs[f].plot(day_ax,output[count,k,:], label = '{} degree'.format(latitude[k])) for k in range(len(latitude))]
+                    axs[f].set_title('kyear {}'.format(kyear[count]))
+                    axs[f].set_xlabel('Time (days)')
+                    axs[f].set_ylabel('Insolation (W/m²)')
+                    axs[i,f].legend()
+                    count += 1
+                  else:
+                    axs[f].remove()
+            plt.tight_layout()
+            plt.savefig('orbkit_testplot.png')
+
+        elif output_type == 'latitude mean':
+
+          output = np.mean(np.array(array_at_kyears), axis = 1)
+
+          if show_plot == 'On':
+
+            lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[1])
+            plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                        
+            fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+            
+            count = 0
+            if np.ndim(axs) == 2:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    axs[i,f].plot(day_ax,output[count], label = 'latitude mean')
+                    axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                    axs[i,f].set_xlabel('Time (days)')
+                    axs[i,f].set_ylabel('Insolation (W/m²)')
+                    axs[i,f].legend(loc = 'upper right')
+                    count += 1
+                  else:
+                    axs[i,f].remove()
+            elif np.ndim(axs) == 1:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    axs[f].plot(day_ax,output[count], label = 'latitude mean')
+                    axs[f].set_title('kyear {}'.format(kyear[count]))
+                    axs[f].set_xlabel('Time (days)')
+                    axs[f].set_ylabel('Insolation (W/m²)')
+                    axs[f].legend(loc = 'upper right')
+                    count += 1
+                  else:
+                    axs[f].remove()
+            plt.tight_layout()
+            plt.savefig('orbkit_testplot.png')
+
+        elif output_type == 'time mean':
+          output = np.mean(np.array(array_at_kyears),axis = 2)
+
+          if show_plot == 'On':
+
+            lat_ax = np.linspace(latitude[0], latitude[1], np.shape(output)[1])
+            plot_rows, plot_cols = Helper_Functions.find_plot_dims(kyear)
+                        
+            fig, axs = plt.subplots(nrows=plot_rows,ncols=plot_cols)
+
+            latitude = [str(i) for i in latitude]
+
+            count = 0
+            if np.ndim(axs) == 2:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    axs[i,f].bar(latitude,output[count])
+                    axs[i,f].set_title('kyear {}'.format(kyear[count]))
+                    axs[i,f].set_ylim(np.min(output)-1, np.max(output)+1)
+                    axs[i,f].set_xlabel('Time (days)')
+                    axs[i,f].set_ylabel('Insolation (W/m²)')
+                    count += 1
+                  else:
+                    axs[i,f].remove()
+            elif np.ndim(axs) == 1:
+              for i in range(plot_rows):
+                for f in range(plot_cols):
+                  if count <= len(kyear)-1:
+                    axs[f].bar(latitude,output[count])
+                    axs[f].set_title('kyear {}'.format(kyear[count]))
+                    axs[f].set_ylim(np.min(output)-1, np.max(output)+1)
+                    axs[f].set_xlabel('Time (days)')
+                    axs[f].set_ylabel('Insolation (W/m²)')
+                    count += 1
+                  else:
+                    axs[f].remove()
+            plt.tight_layout()
+            plt.savefig('orbkit_testplot.png')
+    
+        elif output_type == 'kyear mean':
+
+          output = np.mean(np.array(array_at_kyears), axis = 0)
+
+          if show_plot == 'On':
+
+            [plt.plot(day_ax,output[i], label = '{} degree'.format(latitude[i])) for i in range(len(latitude))]
+            plt.legend()
+            plt.xlabel('Time (days)')
+            plt.title('kyear mean of {}krs'.format(kyear))
+            plt.ylabel('TOA Insolation (W/m²)')
+            plt.savefig('orbkit_testplot.png')
+
     else:
   
       raise ValueError('invalid latitude input, please use type int, tuple or list')
@@ -2238,7 +2563,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
       
       avg_lat = []
 
-      if isinstance(lat, int):
+      if isinstance(lat, int) or isinstance(lat, float):
 
         avg_lat = self.insolation(day, lat = lat, obl = obl, long = long, ecc = ecc, kyear = kyear)
     

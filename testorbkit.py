@@ -66,30 +66,30 @@ import orbkit as ok
 # inso = ok.insolation(kyear = (10,0), latitude = None, season = None, days = None, show_plot = 'On', output_type= 'array')
 
 
-inso_05 = ok.insolation(kyear = 0.5, show_plot= 'On')
+inso = ok.insolation(kyear = [1,2,3,4,5], latitude = [1,2,3,4,5,6,7,8,9,10], show_plot= 'On', output_type='kyear mean')
 
-
+breakpoint()
 #gmi = ok.insolation(kyear = (6000,0), output_type='global annual mean')
 
 
-
-def MathissTests():
-    myok = ok.insolation()
-    print(type(myok))
-    print(myok.size,myok.shape)
+######### MATHIS TESTS #############
+# def MathissTests():
+#     myok = ok.insolation()
+#     print(type(myok))
+#     print(myok.size,myok.shape)
     
-    # method returns modern insolation by default, xarray directly drives plt contour
-    #plt.contour(myok)
-    #plt.show()
+#     # method returns modern insolation by default, xarray directly drives plt contour
+#     #plt.contour(myok)
+#     #plt.show()
     
-    # built-in plot
-    myok2 = ok.insolation(show_plot = 'On',kyear=[21,0])#, latitude=66)
-    print(myok2.size,myok2.shape)
+#     # built-in plot
+#     myok2 = ok.insolation(show_plot = 'On',kyear=[21,0])#, latitude=66)
+#     print(myok2.size,myok2.shape)
     
-if __name__=="__main__":
-    MathissTests()
-    print("Mathis is done testing")
-    
+# if __name__=="__main__":
+#     MathissTests()
+#     print("Mathis is done testing")
+# ######### MATHIS TESTS #############
     
     
     
