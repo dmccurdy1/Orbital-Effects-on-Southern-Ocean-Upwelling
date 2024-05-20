@@ -410,9 +410,11 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.savefig('{}.png'.format(filename))   
     elif isinstance(kyear, tuple) and len(kyear) == 2:
       if output_type == 'array':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
+          
+
           [kyrs_inso.append(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T) for i in kyear_range]
           output = np.array(kyrs_inso)
           if show_plot == True:
@@ -433,7 +435,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.savefig('{}.png'.format(filename))   
 
       elif output_type == 'latitude mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T, axis = 0)) for i in kyear_range]
@@ -451,7 +453,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.savefig('{}.png'.format(filename))   
 
       elif output_type == 'time mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T, axis = 1)) for i in kyear_range]
@@ -472,7 +474,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.savefig('{}.png'.format(filename))   
 
       elif output_type == 'global annual mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(float(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T))) for i in kyear_range]
@@ -680,7 +682,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             raise ValueError('Cannot plot 0-dimentional value')
       elif isinstance(kyear, tuple) and len(kyear) == 2:
         if output_type == 'array' or output_type == 'latitude mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T) for i in kyear_range]
@@ -697,7 +699,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
               plt.legend()
               plt.savefig('{}.png'.format(filename))   
         elif output_type == 'time mean' or output_type == 'global annual mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude, days = day_vals).T)) for i in kyear_range]
@@ -865,7 +867,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif isinstance(kyear, tuple) and len(kyear) == 2:
 
         if output_type == 'array':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude, days = day_vals).T) for i in kyear_range]
@@ -888,7 +890,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.savefig('{}.png'.format(filename))   
 
         elif output_type == 'latitude mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude, days = day_vals).T, axis = 0)) for i in kyear_range]
@@ -903,7 +905,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.savefig('{}.png'.format(filename))   
         
         elif output_type == 'time mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude, days = day_vals).T, axis = 1)) for i in kyear_range]
@@ -923,7 +925,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.savefig('{}.png'.format(filename))   
 
         elif output_type == 'global annual mean':
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           [kyrs_inso.append(np.mean(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude, days = day_vals).T)) for i in kyear_range]
@@ -1165,7 +1167,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.title('eccentricity: {:.2f}, obliquity: {:.2f}, longitude of perhelion: {:.2f}'.format(kyear[0],kyear[1],kyear[2]))
             plt.savefig('{}.png'.format(filename))   
       elif isinstance(kyear, tuple) and len(kyear) == 2:
-          kyear_step = abs(kyear[1] - kyear[0])
+          kyear_step = int(abs(kyear[1] - kyear[0]))
           kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
           kyrs_inso = []
           for i in kyear_range:
@@ -1363,15 +1365,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
     print('Plot of output has been saved as {}.png'.format(filename))
 
   return output
-
-
-
-
-
-
-
-
-
 
 def GMT(kyear = None):
 
@@ -2352,7 +2345,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
       obliquity = obliquity.to_numpy()
       precession = precession.to_numpy()
       
-      if isinstance(self.until_ktime, int):
+      if isinstance(self.until_ktime, int) or isinstance(self.until_ktime, (int, np.integer)):
         kyear0 = kyear0[self.until_ktime:self.from_ktime]
         ecc0 = ecc0[self.until_ktime:self.from_ktime]
         long_peri = long_peri[self.until_ktime:self.from_ktime]
@@ -2373,6 +2366,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     if type(kyear) == type(None):
 
       kyear0,ecc0,long_peri,obliquity,precession = self.get_orbit('on')
+      
 
     elif type(kyear) == type('string'):
 
@@ -2387,6 +2381,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     long_peri_rad = deg2rad(long_peri)
     delta_lambda = (day - 80.) * 2*pi/days_per_year
     beta = sqrt(1 - ecc**2)
+
     lambda_long_m = -2*((ecc/2 + (ecc**3)/8 ) * (1+beta) * sin(-long_peri_rad) -
         (ecc**2)/4 * (1/2 + beta) * sin(-2*long_peri_rad) + (ecc**3)/8 *
         (1/3 + beta) * sin(-3*long_peri_rad)) + delta_lambda
@@ -2558,7 +2553,7 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     
       else:
 
-        lat_step_num = abs(lat[1]-lat[0]) + 1
+        lat_step_num = int(abs(lat[1]-lat[0]) + 1)
         lat_range = np.linspace(lat[0], lat[1], lat_step_num)
         
         avg_lat = self.insolation(day, lat = lat_range, obl = obl, long = long, ecc = ecc, kyear = kyear)

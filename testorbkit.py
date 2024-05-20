@@ -92,5 +92,36 @@ import orbkit as ok
     
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+inso = ok.insolation(kyear=[50,0], latitude = (-11.7,10),days = (9,10),output_type='time mean')
     
-    
+
+
