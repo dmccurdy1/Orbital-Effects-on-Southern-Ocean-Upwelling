@@ -82,7 +82,7 @@ import orbkit as ok
 #     #plt.show()
     
 #     # built-in plot
-#     myok2 = ok.insolation(show_plot = 'On',kyear=[21,0])#, latitude=66)
+    #myok2 = ok.insolation(show_plot = 'On',kyear=[21,0])#, latitude=66)
 #     print(myok2.size,myok2.shape)
     
 # if __name__=="__main__":
@@ -92,6 +92,7 @@ import orbkit as ok
     
 
 
+myok2 = ok.insolation(kyear=[21,0], latitude = 60)
 
 
 
@@ -120,8 +121,7 @@ import orbkit as ok
 
 
 
-
-inso = ok.insolation(kyear=[50,0], latitude = (-11.7,10),days = (9,10),output_type='time mean')
+#inso = ok.insolation(kyear=[50,0], latitude = (-11.7,10),days = (9,10),output_type='time mean')
     
 
 

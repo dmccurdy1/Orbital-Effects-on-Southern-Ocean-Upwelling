@@ -744,7 +744,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
                     axs[f].set_title('kyear {}'.format(kyear[count]))
                     axs[f].set_xlabel('Time (days)')
                     axs[f].set_ylabel('Insolation (W/m²)')
-                    axs[i,f].legend()
+                    axs[f].legend()
                     count += 1
                   else:
                     axs[f].remove()
