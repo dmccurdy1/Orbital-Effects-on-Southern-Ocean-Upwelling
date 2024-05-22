@@ -96,9 +96,9 @@ import orbkit as ok
 
 #biglist = list(np.linspace(21,0,1000))
 
-arr = np.linspace(0,10,5)
+arr = np.linspace(0,100,5)
 
-inso = ok.insolation(latitude = (-10,10), kyear = (10,0) , output_type='latitude day mean')
+inso = ok.insolation(latitude = (-10,10), kyear = arr, output_type='kyear mean')
 breakpoint()
 
 
