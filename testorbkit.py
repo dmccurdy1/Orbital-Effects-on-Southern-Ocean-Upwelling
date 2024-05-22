@@ -98,7 +98,7 @@ import orbkit as ok
 
 arr = np.linspace(0,10,5)
 
-inso = ok.insolation(latitude = (1,2,3), kyear = None , output_type='array')
+inso = ok.insolation(latitude = 65.2, kyear = arr , output_type='kyear mean')
 breakpoint()
 
 
