@@ -92,10 +92,14 @@ import orbkit as ok
     
 
 
-myok2 = ok.insolation(kyear=[21,0], latitude = 60)
+#myok2 = ok.insolation(kyear=(21,0), latitude = (-55,-45), filename='test',show_plot=True)
 
+#biglist = list(np.linspace(21,0,1000))
 
+arr = np.linspace(0,10,5)
 
+inso = ok.insolation(latitude = (1,2,3), kyear = None , output_type='array')
+breakpoint()
 
 
 
