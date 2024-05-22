@@ -12,3 +12,4 @@
 *.png
 *.pyc
 *.txt
+*/__pycache__/mixedlayer.cpython-39.pyc

@@ -613,8 +613,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.xlabel('kyear')
           plt.ylabel('Global Annual Mean Insolation (W/m²)')
           plt.tight_layout()
-          plt.savefig('{}.png'.format(filename))   
-      
+          plt.savefig('{}.png'.format(filename))       
   elif isinstance(latitude, int) or isinstance(latitude, float):    
     if kyear is None:
       if output_type == 'array' or output_type == 'latitude mean':
@@ -746,7 +745,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.title('Insolation at {} for mean of {}kyears'.format(latitude,kyear))
           axs.legend()
           plt.savefig('{}.png'.format(filename))   
-  
   elif isinstance(latitude, tuple) and len(latitude) == 2:   
     if kyear is None:
       if output_type == 'array':
@@ -1028,8 +1026,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.colorbar(im, label = 'Insolation (W/m²)')
 
           plt.tight_layout()
-          plt.savefig('{}.png'.format(filename))   
-   
+          plt.savefig('{}.png'.format(filename))     
   elif isinstance(latitude, list) or isinstance(list,np.ndarray):     
     if kyear is None:
       array_at_lats = []
@@ -1180,13 +1177,11 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.title('Insolation over kyear range {} with latitude mean for {}'.format(kyear,latitude))
             plt.savefig('{}.png'.format(filename))     
     elif isinstance(kyear,list) or isinstance(kyear,np.ndarray):
-
       array_at_kyears = []
       for i in kyear:
         array_at_lats = []
         [array_at_lats.append(Orbital_Insolation(i+1,i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=f, days = day_vals).T) for f in latitude]
         array_at_kyears.append(array_at_lats)
-
       if output_type == 'array':
         output = np.array(array_at_kyears)
         if show_plot == True:
@@ -1221,7 +1216,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
                   axs[f].remove()
           plt.tight_layout()
           plt.savefig('{}.png'.format(filename))   
-
       elif output_type == 'latitude mean':
 
         output = np.mean(np.array(array_at_kyears), axis = 1)
@@ -1241,7 +1235,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.legend()
           plt.tight_layout()
           plt.savefig('{}.png'.format(filename))       
-
       elif output_type == 'day mean':
         output = np.mean(np.array(array_at_kyears),axis = 2)
 
@@ -1259,8 +1252,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.legend()
           
           plt.tight_layout()
-          plt.savefig('{}.png'.format(filename))    
-  
+          plt.savefig('{}.png'.format(filename))      
       elif output_type == 'kyear mean':
 
         output = np.mean(np.array(array_at_kyears), axis = 0)
@@ -1272,10 +1264,11 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.xlabel('Time (days)')
           plt.title('Insolation at latitudes {} for mean of kyears {}'.format(latitude,kyear))
           plt.ylabel('TOA Insolation (W/m²)')
-          plt.savefig('{}.png'.format(filename))   
-    
+          plt.savefig('{}.png'.format(filename))       
+  
   else:
     raise ValueError('invalid output type') 
+  
   if show_plot == True:
     print('Plot of output has been saved as {}.png'.format(filename))
 
