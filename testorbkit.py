@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import orbkit as ok
+import milutin as ok
 
 #age = ok.age()
 
@@ -14,20 +14,20 @@ import orbkit as ok
 # ecc = ok.eccentricity((100,0))
 # obl = ok.obliquity((100,0))
 
-# dobl_dkyr = np.gradient(obl)
+# # dobl_dkyr = np.gradient(obl)
 
-# wave_max_obl, wave_min_obl = ok.wave_peaks('obliquity',(100,0))
-# wave_max_prec, wave_min_rec = ok.wave_peaks('precession',(100,0))
+# # wave_max_obl, wave_min_obl = ok.wave_peaks('obliquity',(100,0))
+# # wave_max_prec, wave_min_rec = ok.wave_peaks('precession',(100,0))
 
 
 # kyears = np.linspace(0,100,101)
 # plt.plot(-kyears, obl)
-# plt1 = plt.twinx()
-# plt1.plot(-kyears, prec, color = 'orange')
-# [plt.axvline(i, color = 'pink') for i in wave_max_obl]
-# [plt.axvline(i, color = 'purple') for i in wave_min_obl]
-# [plt.axvline(i, color = 'blue') for i in wave_max_prec]
-# [plt.axvline(i, color = 'green') for i in wave_min_rec]
+# # plt1 = plt.twinx()
+# # plt1.plot(-kyears, prec, color = 'orange')
+# # [plt.axvline(i, color = 'pink') for i in wave_max_obl]
+# # [plt.axvline(i, color = 'purple') for i in wave_min_obl]
+# # [plt.axvline(i, color = 'blue') for i in wave_max_prec]
+# # [plt.axvline(i, color = 'green') for i in wave_min_rec]
 # plt.savefig('orbkit_testplot.png')
 
 
@@ -96,36 +96,38 @@ import orbkit as ok
 
 #biglist = list(np.linspace(21,0,1000))
 
-arr = np.linspace(0,100,5)
+# arr = np.linspace(0,100,5)
 
-inso = ok.insolation(latitude = [-65,0,65], kyear = [20,10,0], output_type='kyear mean', season = 'DJF')
+# inso = ok.insolation(latitude = [-65,0,65], kyear = [20,10,0], output_type='kyear mean', season = 'DJF')
+# breakpoint()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#inso = ok.insolation(kyear=[0,1,2,3],output_type = 'kyear mean',latitude = [-10,-1,1,10])
+inso = ok.insolation(latitude = [-45,45], kyear = (100,1),output_type='day mean')
 breakpoint()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#inso = ok.insolation(kyear=[50,0], latitude = (-11.7,10),days = (9,10),output_type='time mean')
     
 
 
