@@ -108,6 +108,19 @@ import milutin as ok
 
 
 
+x = np.rad2deg(np.arcsin(ok.experiment(3).config['x']))
+x_S = x[:(int(0.5*len(x)))]
+x_N = x[(int(0.5*len(x))):]
+
+
+inso_S = ok.insolation(latitude=(-1,1),output_type='latitude day mean')
+inso_N = ok.insolation(latitude=(0,90),output_type='latitude day mean')
+inso = ok.insolation(latitude=(-90,90),output_type='latitude day mean')
+inso_def = ok.insolation(output_type='global annual mean')
+inso_S_X = ok.insolation(latitude=x_S,output_type='latitude day mean')
+inso_N_X = ok.insolation(latitude=x_N,output_type='latitude day mean')
+
+breakpoint()
 
 
 
@@ -121,11 +134,8 @@ import milutin as ok
 
 
 
-
-
-
-
-
+# inso_S = ok.insolation(kyear = (1000,0), latitude = x_S, output_type='latitude day mean', show_plot=False)
+# inso_N = ok.insolation(kyear = (1000,0), latitude = x_N, output_type='latitude day mean', show_plot=False)
 
 #inso = ok.insolation(kyear=[0,1,2,3],output_type = 'kyear mean',latitude = [-10,-1,1,10])
 # inso = ok.insolation(latitude = [-45,45], kyear = [10,0], output_type='latitude day mean')
@@ -136,4 +146,39 @@ import milutin as ok
 # inso_1  = ok.insolation(kyear = 40)
     
 #ok.age(-40)
+
+
+#breakpoint()
+# orb_time_series = []
+# for i in range(200):
+#     ecc = ok.eccentricity(i)
+#     obl = ok.obliquity(i)
+#     long_peri = ok.long_peri(i)
+#     orb_var_tuple = (ecc,obl,long_peri)
+#     orb_time_series.append(orb_var_tuple)
+
+
+# inso_no_ecc_S = []
+# for i in range(np.shape(orb_time_series)[0]):
+#     inso = np.array(ok.insolation(kyear = orb_time_series[i],latitude=x_S,show_plot=False,output_type='latitude day mean'))
+#     inso_no_ecc_S.append(inso)
+# inso_no_ecc_S = np.array(inso_no_ecc_S)
+
+# inso_no_ecc_N = []
+# for i in range(np.shape(orb_time_series)[0]):
+#     inso = np.array(ok.insolation(kyear = orb_time_series[i],latitude=x_N,show_plot=False,output_type='latitude day mean'))
+#     inso_no_ecc_N.append(inso)
+# inso_no_ecc_N = np.array(inso_no_ecc_N)
+
+# #breakpoint()
+
+
+fig, axs = plt.subplots()
+
+axs.plot(inso_S, color = 'blue', label = 'Southern Hemisphere')
+
+axs.plot(inso_N, color = 'red', label = 'Northern Hemisphere')
+axs.title('Annual Average Insolation v time')
+plt.savefig('testfig.png')
+
 

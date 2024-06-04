@@ -293,7 +293,7 @@ def precession(kyear = None):
 
 def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = True, season = None, days = None, filename = 'orbkit_plot'):
 
-  if latitude != None:
+  if latitude is not None:
     if np.max(np.abs(latitude)) > 90:
         raise ValueError('latitude value is out of degree range (-90,90)')  
   if isinstance(latitude, list) and len(latitude) == 1:
@@ -304,7 +304,8 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
   if season == None:
     if days == None:
       day_vals = None
-      day_ax = np.linspace(0,Orbital_Insolation().days_per_year_const,365)
+      day_ax = np.linspace(0,Orbital_Insolation().days_per_year_const ,365)
+
     elif days != None:
       if isinstance(days, tuple) and len(days) == 2 and days[0] != days[1]:
         day_vals = np.linspace(days[0],days[1], abs(days[0]-days[1])+1)
@@ -1308,9 +1309,9 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
 
   else:
     raise ValueError('invalid output type') 
-  
+
   if show_plot == True:
-    if len(output) <= 1:
+    if np.ndim(output) == 0:
       pass
     else:
       print('Plot of output has been saved as {}.png'.format(filename))
@@ -2509,8 +2510,8 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
     
       else:
 
-        lat_step_num = int(abs(lat[1]-lat[0]) + 1)
-        lat_range = np.linspace(lat[0], lat[1], lat_step_num)
+        sin_grid = np.linspace(sin(np.deg2rad(lat[0])),sin(np.deg2rad(lat[1])),1000) #native grid
+        lat_range = np.rad2deg(np.arcsin(sin_grid))
         
         avg_lat = self.insolation(day, lat = lat_range, obl = obl, long = long, ecc = ecc, kyear = kyear)
           
