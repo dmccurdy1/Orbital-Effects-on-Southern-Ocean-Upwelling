@@ -125,9 +125,15 @@ import milutin as ok
 
 
 
-#inso = ok.insolation(kyear=[0,1,2,3],output_type = 'kyear mean',latitude = [-10,-1,1,10])
-inso = ok.insolation(latitude = [-45,45], kyear = (100,1),output_type='day mean')
-breakpoint()
-    
 
+
+#inso = ok.insolation(kyear=[0,1,2,3],output_type = 'kyear mean',latitude = [-10,-1,1,10])
+# inso = ok.insolation(latitude = [-45,45], kyear = [10,0], output_type='latitude day mean')
+# breakpoint()
+
+# max_peaks, min_peaks = ok.wave_peaks('obliquity',(100,0))
+# #inso_0 = ok.insolation(kyear = -39)
+# inso_1  = ok.insolation(kyear = 40)
+    
+#ok.age(-40)
 

@@ -64,13 +64,13 @@ def age(kyear = 0):
   float_params = tuple([float(i) for i in params])
   kyear ,ecc ,long_peri ,obliquity ,precession = float_params
 
-  print('at {} kyr BP: \n eccentricity = {} \n obliquity = {} \n longitude of perihelion = {}'.format(int(abs(kyear)), ecc, obliquity, long_peri))
+  print('at {} kyr BP: \n eccentricity = {} \n obliquity = {} \n longitude of perihelion = {}'.format(abs(kyear), ecc, obliquity, long_peri))
 
   output = (ecc, obliquity, long_peri)
 
   return output
 
-def wave_peaks(wave, kyear_range):
+def wave_peaks(wave, kyear_range, maxima = 'both'):
 
   from_kyear, to_kyear = kyear_range
   params = Orbital_Insolation(from_kyear+1, to_kyear).get_orbit()
@@ -94,8 +94,14 @@ def wave_peaks(wave, kyear_range):
   [minima_kyear.append(kyear[i]) for i in minima_loc]
   maxima_kyear = maxima_kyear[0]
   minima_kyear = minima_kyear[0]
+
+  if maxima == 'min':
+    return minima_kyear
+  elif maxima == 'max':
+     return maxima_kyear
+  else:
+    return maxima_kyear, minima_kyear
   
-  return maxima_kyear, minima_kyear
 
 def obliquity(kyear = None):
 
@@ -356,7 +362,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif output_type == 'global annual mean':
         output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T)
         if show_plot == True:
-          raise ValueError('Cannot plot scalar value')
+          print('No associated plot for output')
     elif isinstance(kyear, int) or isinstance(kyear, float):
       if output_type == 'array':
         output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T
@@ -392,7 +398,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif output_type == 'global annual mean':
         output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T)
         if show_plot == True:
-          raise ValueError('Cannot plot scalar value')   
+          print('No associated plot for output')   
     elif isinstance(kyear, tuple) and len(kyear) == 3:
       eccentricity, obliquity, long_peri = kyear
       if output_type == 'array':
@@ -429,7 +435,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif output_type == 'global annual mean':
         output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'integer', days = day_vals).T)
         if show_plot == True:
-          raise ValueError('Cannot plot scalar value')
+          print('No associated plot for output')
     elif isinstance(kyear, tuple) and len(kyear) == 2:    
       kyear_step = int(abs(kyear[1] - kyear[0]))
       kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
@@ -617,7 +623,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif output_type == 'day mean':
         output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T)
         if show_plot == True:
-          raise ValueError('Cannot plot scalar value')
+          print('No associated plot for output')
     elif isinstance(kyear, int) or isinstance(kyear, float):       
       if output_type == 'array' or output_type == 'latitude mean':
         output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T
@@ -632,7 +638,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif output_type == 'day mean':
         output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T)
         if show_plot == True:
-          raise ValueError('Cannot plot scalar value')
+          print('No associated plot for output')
     elif isinstance(kyear, tuple) and len(kyear) == 3:
       eccentricity, obliquity, long_peri = kyear
       if output_type == 'array' or output_type == 'latitude mean':
@@ -648,7 +654,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
       elif output_type == 'day mean':
         output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude, days = day_vals).T)
         if show_plot == True:
-          raise ValueError('Cannot plot scalar value')
+          print('No associated plot for output')
     elif isinstance(kyear, tuple) and len(kyear) == 2:
       kyear_step = int(abs(kyear[1] - kyear[0]))
       kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
@@ -761,6 +767,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.title('Modern Insolation for day mean')
           plt.legend()
           plt.savefig('{}.png'.format(filename))   
+      elif output_type == 'latitude day mean':
+        output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T, axis = (0,1))
+        if show_plot == True:
+          print('No associated plot for output')   
     elif isinstance(kyear, int) or isinstance(kyear, float):
       if output_type == 'array':
         output = Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T
@@ -793,6 +803,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.title('Insolation at {} kyear, mean over days')
           plt.legend()
           plt.savefig('{}.png'.format(filename))   
+      elif output_type == 'latitude day mean':
+        output = np.mean(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=latitude, days = day_vals).T, axis = (0,1))
+        if show_plot == True:
+          print('No associated plot for output') 
     elif isinstance(kyear, tuple) and len(kyear) == 3:
       eccentricity, obliquity, long_peri = kyear
       if output_type == 'array':
@@ -827,6 +841,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.title('Insolation mean over days with \n eccentricity: {:.2f}, obliquity: {:.2f} and longitude of perihelion: {:.2f}'.format(eccentricity,obliquity,long_peri))
           plt.legend()
           plt.savefig('{}.png'.format(filename))   
+      elif output_type == 'latitude day mean':
+        output = np.mean(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', obl = obliquity, long = long_peri, ecc = eccentricity, kyear = '', lat=latitude, days = day_vals).T, axis = (0,1))
+        if show_plot == True:
+          print('No associated plot for output')
     elif isinstance(kyear, tuple) and len(kyear) == 2:
       kyear_step = int(abs(kyear[1] - kyear[0]))
       kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
@@ -999,15 +1017,22 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.colorbar(im, label = 'Insolation (W/m²)')
 
           plt.tight_layout()
-          plt.savefig('{}.png'.format(filename))     
+          plt.savefig('{}.png'.format(filename))          
+      elif output_type == 'latitude day mean':
+        output = np.mean(output, axis = (1,2))
+        if show_plot == True:
+          kyear_ax = np.linspace(kyear[0],kyear[1],len(output))
+          plt.plot(kyear_ax,output)
+          plt.xlabel('Time (kyears)')
+          plt.ylabel('TOA Insolation (W/m²)')
+          plt.title('Insolation latitude mean over range {} and day mean \n for kyears {}'.format(latitude, kyear))
+          plt.savefig('{}.png'.format(filename))  
   elif isinstance(latitude, list) or isinstance(latitude,np.ndarray):     
     if kyear is None:
       array_at_lats = []
       [array_at_lats.append(Orbital_Insolation(1,0).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i, days = day_vals).T) for i in latitude]
       output = np.array(array_at_lats)
       output = xr.DataArray(data=output,dims=['lat','day'],coords={'lat':latitude, 'day':day_ax})
-
-
       if output_type == 'array':
         pass
         if show_plot == True:
@@ -1035,7 +1060,11 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.xlabel('Latitude (degrees)')
           plt.ylabel('TOA Insolation (W/m²)')
           plt.title('Modern Insolation day mean')
-          plt.savefig('{}.png'.format(filename))   
+          plt.savefig('{}.png'.format(filename))     
+      elif output_type == 'latitude day mean':
+        output = np.mean(output, axis = (0,1))
+        if show_plot == True:
+          print('No associated plot for output')   
     elif isinstance(kyear, int) or isinstance(kyear,float):
       array_at_lats = []
       [array_at_lats.append(Orbital_Insolation(kyear+1, kyear).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat=i, days = day_vals).T) for i in latitude]
@@ -1068,6 +1097,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.ylabel('TOA Insolation (W/m²)')
           plt.title('Insolation for kyear {} BP day mean'.format(kyear))
           plt.savefig('{}.png'.format(filename))   
+      elif output_type == 'latitude day mean':
+        output = np.mean(output, axis = (0,1))
+        if show_plot == True:
+          print('No associated plot for output')    
     elif isinstance(kyear, tuple) and len(kyear) == 3:
       eccentricity, obliquity, long_peri = kyear
       array_at_lats = []
@@ -1101,6 +1134,10 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.ylabel('TOA Insolation (W/m²)')
           plt.title('Insolation for day mean with \n eccentricity: {:.2f}, obliquity: {:.2f}, longitude of perhelion: {:.2f}'.format(kyear[0],kyear[1],kyear[2]))
           plt.savefig('{}.png'.format(filename))   
+      elif output_type == 'latitude day mean':
+        output = np.mean(output, axis = (0,1))
+        if show_plot == True:
+          print('No associated plot for output')  
     elif isinstance(kyear, tuple) and len(kyear) == 2:
         kyear_step = int(abs(kyear[1] - kyear[0]))
         kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
@@ -1155,8 +1192,17 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
             plt.plot(kyear_ax,output)
             plt.xlabel('Time (kyears)')
             plt.ylabel('TOA Insolation (W/m²)')
-            plt.title('Insolation over kyear range {} with latitude mean for {}'.format(kyear,latitude))
+            plt.title('Insolation over kyear range {} with day mean \n and latitude mean for {} degrees'.format(kyear,latitude))
             plt.savefig('{}.png'.format(filename))     
+        elif output_type == 'kyear mean':
+          output = np.mean(output, axis = 0)
+          if show_plot == True:
+            [plt.plot(day_ax,output[i], label = '{} degree'.format(latitude[i])) for i in range(len(latitude))]
+            plt.legend()
+            plt.xlabel('Time (days)')
+            plt.ylabel('TOA Insolation (W/m²)')
+            plt.title('Insolation mean over kyear range {} BP'.format(kyear))
+            plt.savefig('{}.png'.format(filename)) 
     elif isinstance(kyear,list) or isinstance(kyear,np.ndarray):
       array_at_kyears = []
       for i in kyear:
@@ -1250,15 +1296,27 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
           plt.title('Insolation at latitudes {} for mean of kyears {}'.format(latitude,kyear))
           plt.ylabel('TOA Insolation (W/m²)')
           plt.savefig('{}.png'.format(filename))       
-  
+      elif output_type == 'latitude day mean':
+        output = np.mean(output, axis = (1,2))
+        if show_plot == True:
+          kyear_ax = np.linspace(kyear[0],kyear[1],len(output))
+          plt.plot(kyear_ax,output)
+          plt.xlabel('Time (kyears)')
+          plt.ylabel('TOA Insolation (W/m²)')
+          plt.title('Insolation for kyears {} with day mean \n and latitude mean for {} degrees'.format(kyear,latitude))
+          plt.savefig('{}.png'.format(filename))
+
   else:
     raise ValueError('invalid output type') 
   
   if show_plot == True:
-    print('Plot of output has been saved as {}.png'.format(filename))
+    if len(output) <= 1:
+      pass
+    else:
+      print('Plot of output has been saved as {}.png'.format(filename))
 
   return output
-  
+
 
 def GMT(kyear = None):
 
@@ -2220,10 +2278,14 @@ class Orbital_Insolation(): # computes insolation values from orbital parameters
 
   def __init__(self, from_ktime=2000, until_ktime = 0):
 
+    
     self.from_ktime = from_ktime
     self.until_ktime = until_ktime
     self.days_per_year_const = 365.2422 #days
     self.day_type = 1
+
+    if from_ktime < 0 or until_ktime < 0:
+      raise ValueError('kyear BP must be positive value')
 
   def get_orbit(self, control_obliquity = None): #retrieves and packs data from Laskar 2004
 
