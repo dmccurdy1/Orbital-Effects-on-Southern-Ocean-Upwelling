@@ -108,27 +108,29 @@ import milutin as ok
 
 
 
-x = np.rad2deg(np.arcsin(ok.experiment(3).config['x']))
-x_S = x[:(int(0.5*len(x)))]
-x_N = x[(int(0.5*len(x))):]
+# x = np.rad2deg(np.arcsin(ok.experiment(3).config['x']))
+# x_S = x[:(int(0.5*len(x)))]
+# x_N = x[(int(0.5*len(x))):]
 
 
-inso_S = ok.insolation(latitude=(-1,1),output_type='latitude day mean')
-inso_N = ok.insolation(latitude=(0,90),output_type='latitude day mean')
-inso = ok.insolation(latitude=(-90,90),output_type='latitude day mean')
-inso_def = ok.insolation(output_type='global annual mean')
-inso_S_X = ok.insolation(latitude=x_S,output_type='latitude day mean')
-inso_N_X = ok.insolation(latitude=x_N,output_type='latitude day mean')
+# inso_S = ok.insolation(latitude=(-1,1),output_type='latitude day mean')
+# inso_N = ok.insolation(latitude=(0,90),output_type='latitude day mean')
+# inso = ok.insolation(latitude=(-90,90),output_type='latitude day mean')
+# inso_def = ok.insolation(output_type='global annual mean')
+# inso_S_X = ok.insolation(latitude=x_S,output_type='latitude day mean')
+# inso_N_X = ok.insolation(latitude=x_N,output_type='latitude day mean')
+
+# breakpoint()
+
+
+
+
+
+inso_s = ok.insolation(latitude = (-90,0),solve_energy=True)
+inso_n = ok.insolation(latitude = (0,90),solve_energy=True)
+inso = ok.insolation(solve_energy=True)
 
 breakpoint()
-
-
-
-
-
-
-
-
 
 
 
@@ -150,35 +152,59 @@ breakpoint()
 
 #breakpoint()
 # orb_time_series = []
-# for i in range(200):
-#     ecc = ok.eccentricity(i)
-#     obl = ok.obliquity(i)
-#     long_peri = ok.long_peri(i)
+# obl_list = []
+# long_peri_list = []
+# for i in range(1000):
+#     ecc = 0.02#ok.eccentricity(i)
+#     obl = 0.36*i#ok.obliquity(i)
+#     long_peri = 0.36*i#ok.long_peri(i)
 #     orb_var_tuple = (ecc,obl,long_peri)
 #     orb_time_series.append(orb_var_tuple)
-
-
-# inso_no_ecc_S = []
-# for i in range(np.shape(orb_time_series)[0]):
-#     inso = np.array(ok.insolation(kyear = orb_time_series[i],latitude=x_S,show_plot=False,output_type='latitude day mean'))
-#     inso_no_ecc_S.append(inso)
-# inso_no_ecc_S = np.array(inso_no_ecc_S)
+#     obl_list.append(obl)
+#     long_peri_list.append(long_peri)
 
 # inso_no_ecc_N = []
-# for i in range(np.shape(orb_time_series)[0]):
-#     inso = np.array(ok.insolation(kyear = orb_time_series[i],latitude=x_N,show_plot=False,output_type='latitude day mean'))
-#     inso_no_ecc_N.append(inso)
+# for i in range(resolution):
+#     ecc = 0.02
+#     obl = (180/resolution)*i
+#     inso_row = []
+#     long_ax = []
+#     for f in range(resolution):
+#         long_peri = (360/resolution)*f
+#         inso = np.array(ok.insolation(kyear =(ecc,obl,long_peri),latitude=(0,90),show_plot=False,output_type='latitude day mean'))
+#         inso_row.append(inso)
+#         long_ax.append(long_peri)
+#     inso_no_ecc_N.append(inso_row)
+#     obl_ax.append(obl)
 # inso_no_ecc_N = np.array(inso_no_ecc_N)
+
+#breakpoint()
+# inso_S = inso_no_ecc_S
+# inso_N = inso_no_ecc_N
+# diff = inso_S - inso_N
 
 # #breakpoint()
 
 
-fig, axs = plt.subplots()
+# inso_S = ok.insolation(kyear = (7000,0), latitude = (-90,0), output_type='latitude day mean')
+# inso_N = ok.insolation(kyear = (7000,0), latitude = (0,90), output_type='latitude day mean')
 
-axs.plot(inso_S, color = 'blue', label = 'Southern Hemisphere')
+#fig, axs = plt.subplots(nrows = 2, ncols = 3)
 
-axs.plot(inso_N, color = 'red', label = 'Northern Hemisphere')
-axs.title('Annual Average Insolation v time')
-plt.savefig('testfig.png')
+# axs.plot(obl_list,inso_S, color = 'blue', label = 'Southern Hemisphere')
+
+# axs.plot(obl_list,inso_N, color = 'red', label = 'Northern Hemisphere')
+# axs.twinx().plot(obl_list,diff, color = 'green', label = 'difference')
+
+# axs.set_title('Annual Average Insolation v time \n ecc(x) = 0.02, long_peri(x) = kyr(x), obl(x) = 0.36x')
+# axs.set_ylabel('Insolation (W/m²)')
+# axs.set_xlabel('x')
+# axs.legend()
+
+
+
+
+
+
 
 

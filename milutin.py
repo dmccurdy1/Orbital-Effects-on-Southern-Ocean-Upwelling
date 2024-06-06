@@ -291,7 +291,7 @@ def precession(kyear = None):
 
     return output
 
-def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = True, season = None, days = None, filename = 'orbkit_plot'):
+def insolation(kyear = None, latitude = None, output_type = 'array', show_plot = True, season = None, days = None, filename = 'orbkit_plot', solve_energy = None):
 
   if latitude is not None:
     if np.max(np.abs(latitude)) > 90:
@@ -849,7 +849,7 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
     elif isinstance(kyear, tuple) and len(kyear) == 2:
       kyear_step = int(abs(kyear[1] - kyear[0]))
       kyear_range = np.linspace(kyear[0],kyear[1], kyear_step+1, dtype = int)
-      lat_range = np.linspace(latitude[0], latitude[1], 1+abs(latitude[0]-latitude[1]))
+      lat_range = np.linspace(latitude[0], latitude[1], 1000)
       kyrs_inso = []
       [kyrs_inso.append(Orbital_Insolation(i+1, i).avg_insolation(experiment(grid_num = 3).config, lat_array = 'for lat', lat = latitude, days = day_vals).T) for i in kyear_range]
       output = np.array(kyrs_inso)
@@ -1316,6 +1316,27 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
     else:
       print('Plot of output has been saved as {}.png'.format(filename))
 
+  if solve_energy == True: #needs work
+
+    dims = output.dims
+    
+    if 'lat' in dims and 'day' in dims and 'kyr' not in dims:
+
+      sum = np.sum(output)
+      radius = 6378100 # m
+      lat_bound_a = np.deg2rad(float(output.coords['lat'][0]))
+      lat_bound_b = np.deg2rad(float(output.coords['lat'][-1]))
+      area = 2 * np.pi * (radius**2) * np.abs( np.sin(lat_bound_a) - np.sin(lat_bound_b) )
+      days_bound_a = float(output.coords['day'][0])
+      days_bound_b = float(output.coords['day'][-1])
+      days = days_bound_b - days_bound_a
+      seconds = days*24*60*60
+
+      energy = sum*area*seconds # Joules
+      energy = np.array(energy)
+      
+      output = energy      
+  
   return output
 
 
