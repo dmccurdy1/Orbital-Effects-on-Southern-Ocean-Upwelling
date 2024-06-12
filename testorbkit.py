@@ -126,11 +126,11 @@ import milutin as ok
 
 
 
-inso_s = ok.insolation(latitude = (-90,0),solve_energy=True)
-inso_n = ok.insolation(latitude = (0,90),solve_energy=True)
-inso = ok.insolation(solve_energy=True)
+# inso_s = ok.insolation(latitude = (-90,0),solve_energy=True)
+# inso_n = ok.insolation(latitude = (0,90),solve_energy=True)
+# inso = ok.insolation(solve_energy=True)
 
-breakpoint()
+# breakpoint()
 
 
 
