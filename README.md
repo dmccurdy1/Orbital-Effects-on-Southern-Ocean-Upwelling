@@ -28,6 +28,8 @@ Now, you can access all the functions defined in `milutin.py` using the `ml` ali
 
 ## Functions
 
+To get a demonstration on how to use the various functions inside of the Milutin package, open the Jupyter Notebooks in the repository titled `milutin_'function'_demo.ipynb` that has the desired function you would like to learn more about.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
