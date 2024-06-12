@@ -100,8 +100,7 @@ def wave_peaks(wave, kyear_range, maxima = 'both'):
   elif maxima == 'max':
      return maxima_kyear
   else:
-    return maxima_kyear, minima_kyear
-  
+    return maxima_kyear, minima_kyear 
 
 def obliquity(kyear = None):
 
@@ -1339,7 +1338,6 @@ def insolation(kyear = None, latitude = None, output_type = 'array', show_plot =
   
   return output
 
-
 def GMT(kyear = None):
 
   if kyear == None:
@@ -1425,8 +1423,6 @@ def climate(kyear = None, latitude = None, moist = None, seas = None):
         insolation = output[5]
 
         return insolation, absorbed_solar_radiation, outgoing_longwave_radiation, surface_temperature, meridional_temperature_gradient, meridional_energy_transport, southern_hemisphere_sea_ice_edge
-
-
 
 #---------------------------------------------------------------#
 
