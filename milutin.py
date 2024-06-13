@@ -90,8 +90,8 @@ def wave_peaks(wave, kyear_range, maxima = 'both'):
 
   maxima_kyear = []
   minima_kyear = []
-  [maxima_kyear.append(kyear[i]) for i in maxima_loc]
-  [minima_kyear.append(kyear[i]) for i in minima_loc]
+  [maxima_kyear.append(abs(kyear[i])) for i in maxima_loc]
+  [minima_kyear.append(abs(kyear[i])) for i in minima_loc]
   maxima_kyear = maxima_kyear[0]
   minima_kyear = minima_kyear[0]
 
