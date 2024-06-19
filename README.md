@@ -6,7 +6,7 @@ Welcome to the **Milutin** repository! This project includes a collection of Pyt
 - [Installation](#installation)
 - [Usage](#usage)
 - [Functions](#functions)
-- [acknowledgements](#acknowledgements)
+- [Acknowledgements](#acknowledgements)
 
 ## Installation
 
