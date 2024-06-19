@@ -6,7 +6,7 @@ Welcome to the **Milutin** repository! This project includes a collection of Pyt
 - [Installation](#installation)
 - [Usage](#usage)
 - [Functions](#functions)
-- [License](#license)
+- [acknowledgements](#acknowledgements)
 
 ## Installation
 
@@ -29,6 +29,21 @@ Now, you can access all the functions defined in `milutin.py` using the `ml` ali
 ## Functions
 
 To get a demonstration on how to use the various functions inside of the Milutin package, open the Jupyter Notebooks in the repository titled `milutin_'function'_demo.ipynb` that has the desired function you would like to learn more about.
+
+## Acknowledgements
+
+Orbital loop up table:
+
+Laskar, J., Robutel, P., Joutel, F., Gastineau, M., Correia, A. C., & Levrard, B. (2004). A long-term numerical solution for the insolation quantities of the Earth. Astronomy & Astrophysics, 428(1), 261-285.
+
+Climate model:
+
+Feldl, N., & Merlis, T. M. (2021). Polar amplification in idealized climates: The role of ice, moisture, and seasons. Geophysical Research Letters, 48(17), e2021GL094130.
+
+Insolation model:
+
+Developed by Ian Eisenman and Peter Huybers, Harvard University, August 2006. The code can be found here:
+https://climlab.readthedocs.io/en/latest/api/climlab.solar.insolation.html
 
 ## License
 
