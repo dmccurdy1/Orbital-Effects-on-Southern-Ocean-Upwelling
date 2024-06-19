@@ -10,7 +10,7 @@ Welcome to the **Milutin** repository! This project includes a collection of Pyt
 
 ## Installation
 
-To use the functions provided in this repository, you'll need to clone the repository and ensure you have Python installed on your machine, with Numpy, Pandas and Matplotlib Python librariers.
+To use the functions provided in this repository, you'll need to clone the repository and ensure you have Python installed on your machine, with Numpy, Pandas and Matplotlib Python libraries.
 
 ### Python Version
 
